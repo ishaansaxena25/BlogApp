@@ -13,7 +13,7 @@ const Blog = require("./models/blog");
 const userRoute = require("./routes/usesroute");
 const blogRoute = require("./routes/blogroute");
 
-mongoose.connect(cloudURL).then(console.log("Mongodb Connected"));
+mongoose.connect(process.env.CLOUD_URL).then(console.log("Mongodb Connected"));
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
