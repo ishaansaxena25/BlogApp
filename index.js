@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const { checkforAuthCookie } = require("./middlewares/auth");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 const Blog = require("./models/blog");
 const userRoute = require("./routes/usesroute");
