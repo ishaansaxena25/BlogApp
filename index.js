@@ -1,6 +1,5 @@
 const express = require("express");
 const path = require("path");
-const cloudURL = require("./connect");
 const localURL = "mongodb://localhost:27017/blogify";
 
 const cookieParser = require("cookie-parser");
