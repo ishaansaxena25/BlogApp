@@ -9,6 +9,15 @@ router.get("/signin", (req, res) => {
 router.get("/signup", (req, res) => {
   return res.render("signup");
 });
+router.get("/edit", (req, res) => {
+  return res.render("editUser", {
+    user: req.user,
+  });
+});
+
+router.get("/changePass", (req, res) => {
+  return res.render("changePass");
+});
 
 router.get("/logout", (req, res) => {
   res.clearCookie("token").redirect("/");

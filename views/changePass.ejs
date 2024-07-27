@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./partials/head') %>
+    <title>Change Password</title>
+  </head>
+  <body>
+    <%- include('./partials/nav') %>
+    <div class="container mt-4">
+      <form action="/user/changePass" method="post">
+        <div class="mb-3">
+          <label for="oldPass" class="form-label">Old Password</label>
+          <input type="text" class="form-control" id="oldPass" name="oldPass" />
+        </div>
+        <div class="mb-3">
+          <label for="newPass" class="form-label">New Password</label>
+          <input
+            type="password"
+            name="newPass"
+            class="form-control"
+            id="newPass"
+          />
+          <div class="form-check mb-4">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              value=""
+              id="newPassCheck"
+            />
+            <label class="form-check-label" for="newPassCheck">
+              Show Password
+            </label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+    <%- include('./partials/scripts') %>
+    <script>
+      const togglePassword = document.querySelector("#newPassCheck");
+      const password = document.querySelector("#newPass");
+
+      togglePassword.addEventListener("click", function (e) {
+        // toggle the type attribute
+        const type =
+          password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+        // toggle the eye slash icon
+        this.classList.toggle("form-check-input");
+      });
+    </script>
+  </body>
+</html>

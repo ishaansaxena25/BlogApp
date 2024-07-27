@@ -1,18 +1,19 @@
 const express = require("express");
 const path = require("path");
 const localURL = "mongodb://localhost:27017/blogify";
-
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const { checkforAuthCookie } = require("./middlewares/auth");
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 8000;
 
 const Blog = require("./models/blog");
 const userRoute = require("./routes/usesroute");
 const blogRoute = require("./routes/blogroute");
 
-mongoose.connect(process.env.CLOUD_URL).then(console.log("Mongodb Connected"));
+mongoose
+  .connect(process.env.CLOUD_URL || localURL)
+  .then(console.log("Mongodb Connected"));
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));

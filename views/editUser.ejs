@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./partials/head') %>
+    <title>Edit</title>
+  </head>
+  <body>
+    <%- include('./partials/nav') %>
+    <div class="container mt-4">
+      <form action="/user/edit" method="post">
+        <div class="mb-3">
+          <label for="fullName" class="form-label">FullName</label>
+          <input
+            type="text"
+            class="form-control"
+            name="fullName"
+            id="fullName"
+            value="<%= user.fullName %>"
+          />
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            aria-describedby="emailHelp"
+            value="<%= user.email %>"
+          />
+        </div>
+        <div class="mb-3">
+          <label for="coverImage" class="form-label">Profile Image</label>
+          <input
+            class="form-control"
+            name="profileImage"
+            type="file"
+            id="coverImage"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+    <%- include('./partials/scripts') %>
+  </body>
+</html>

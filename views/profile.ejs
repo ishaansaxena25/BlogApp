@@ -50,8 +50,12 @@
           <img src="<%= user.profileImageURL %>" />
           <pre>Name: <%= user.fullName %></pre>
           <pre>Email: <%= user.email %></pre>
-          <button>Edit profile</button>
-          <button>Change password</button>
+          <a href="/user/edit">
+            <button>Edit profile</button>
+          </a>
+          <a href="/user/changePass">
+            <button>Change password</button>
+          </a>
         </div>
       </div>
     </div>
