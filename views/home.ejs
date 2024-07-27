@@ -31,9 +31,9 @@
           />
           <div class="card-body">
             <h5 class="card-title mb-4"><%= blog.title %></h5>
-            <p class="card-text" style="max-height: 250px; overflow-y: hidden">
+            <pre class="card-text" style="max-height: 250px; overflow: hidden">
               <%= blog.body %>
-            </p>
+            </pre>
             <a href="/blog/<%= blog._id %>" class="btn btn-primary">Read</a>
           </div>
         </div>
