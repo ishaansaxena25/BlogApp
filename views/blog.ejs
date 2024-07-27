@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./partials/head') %>
+    <title>BLOG</title>
+  </head>
+  <body>
+    <%- include('./partials/nav') %>
+    <div class="container mt-4">
+      <h1 class="mt-3 mb-3"><%= blog.title %></h1>
+      <img
+        src="<%= blog.coverImageURL %>"
+        width="700px"
+        style="margin: 30px; align-self: center; justify-self: center"
+      />
+      <pre
+        style="
+          max-width: 90%;
+          overflow-x: auto;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+        "
+      >
+<%= blog.body %></pre
+      >
+      <img src="<%= blog.createdBy.profileImageURL %>" width="30px" />
+      <pre><%= blog.createdBy.fullName %></pre>
+    </div>
+    <div class="container">
+      <% if (locals.user) { %>
+      <form action="/blog/comment/<%= blog._id %>" method="post">
+        <div class="mb-3">
+          <label for="content" class="form-label">Add Comment</label>
+          <input type="text" class="form-control" id="content" name="content" />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      <% } %>
+    </div>
+    <div class="container mt-4">
+      <h1>COMMENTS</h1>
+      <% comments.forEach(comment => { %>
+      <div class="card mt-3" style="padding: 10px">
+        <div class="mb-2">
+          <img src="<%= comment.UserId.profileImageURL %>" width="25px" />
+          <h4 style="display: inline"><i><%= comment.UserId.fullName %></i></h4>
+        </div>
+        <div style="margin-left: 10%">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-caret-right-fill"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"
+            />
+          </svg>
+          <h5 style="display: inline"><%= comment.content %></h5>
+        </div>
+      </div>
+
+      <br />
+      <% }) %>
+    </div>
+  </body>
+</html>

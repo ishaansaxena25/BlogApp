@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./partials/head') %>
+    <title>HOMEPAGE</title>
+  </head>
+  <body>
+    <%- include('./partials/nav') %>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8">
+          <h1>Your blogs</h1>
+          <div class="container mt-3">
+            <div class="row row-cols-3">
+              <% blogs.forEach(blog => { %>
+              <div
+                class="card col mt-4 mb-4"
+                style="
+                  width: 30%;
+                  min-height: 300px;
+                  margin-right: 1.5%;
+                  margin-left: 1.5%;
+                "
+              >
+                <img
+                  style="
+                    width: 85%;
+                    height: 85%;
+                    align-self: center;
+                    object-fit: contain;
+                  "
+                  src="<%= blog.coverImageURL %>"
+                  class="card-img-top mt-4"
+                  alt="..."
+                />
+                <div class="card-body">
+                  <h5 class="card-title mb-4"><%= blog.title %></h5>
+
+                  <a href="/blog/<%= blog._id %>" class="btn btn-primary"
+                    >View</a
+                  >
+                </div>
+              </div>
+
+              <% }) %>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <img src="<%= user.profileImageURL %>" />
+          <pre>Name: <%= user.fullName %></pre>
+          <pre>Email: <%= user.email %></pre>
+          <button>Edit profile</button>
+          <button>Change password</button>
+        </div>
+      </div>
+    </div>
+    <%- include('./partials/scripts') %>
+  </body>
+</html>
