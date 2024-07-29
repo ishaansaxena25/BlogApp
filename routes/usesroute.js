@@ -3,6 +3,7 @@ const User = require("../models/user");
 const Blog = require("../models/blog");
 const multer = require("multer");
 const path = require("path");
+const { createTokenforUser } = require("../services/JWTauth");
 const router = Router();
 
 const storage = multer.diskStorage({
@@ -74,4 +75,21 @@ router.get("/profile", async (req, res) => {
   return res.render("profile", { user, blogs });
 });
 
+router.post("/edit", upload.single("profileImage"), async (req, res) => {
+  var user;
+  if (!req.file) {
+    user = await User.findByIdAndUpdate(req.user._id, {
+      fullName: req.body.fullName,
+      email: req.body.email,
+    });
+  } else {
+    user = await User.findByIdAndUpdate(req.user._id, {
+      fullName: req.body.fullName,
+      email: req.body.email,
+      profileImageURL: `/profile/${req.file.filename}`,
+    });
+  }
+  const token = createTokenforUser(user);
+  return res.clearCookie("token").cookie("token", token).redirect("/");
+});
 module.exports = router;

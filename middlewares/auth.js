@@ -1,4 +1,4 @@
-const { validateToken } = require("../services/authentication");
+const { validateToken } = require("../services/JWTauth");
 
 function checkforAuthCookie(cookieName) {
   return (req, res, next) => {

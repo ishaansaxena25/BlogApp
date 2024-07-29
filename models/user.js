@@ -1,6 +1,6 @@
 const { createHmac, hash } = require("crypto");
 const { Schema, model } = require("mongoose");
-const { createTokenforUser } = require("../services/authentication");
+const { createTokenforUser } = require("../services/JWTauth");
 const userSchema = new Schema({
   fullName: {
     type: String,
