@@ -5,7 +5,6 @@ const userSchema = new Schema({
   fullName: {
     type: String,
     required: true,
-    unique: true,
   },
   email: {
     type: String,
@@ -43,8 +42,6 @@ userSchema.pre("save", function (next) {
   this.salt = salt;
   this.password = hashedpass;
   console.log("success");
-  console.log(this);
-
   next();
 });
 

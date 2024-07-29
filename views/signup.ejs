@@ -7,7 +7,7 @@
   <body>
     <%- include('./partials/nav') %>
     <div class="container mt-4">
-      <form action="/user/signup" method="post">
+      <form action="/user/signup" method="post" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="fullName" class="form-label">FullName</label>
           <input
@@ -15,6 +15,7 @@
             class="form-control"
             name="fullName"
             id="fullName"
+            required
           />
         </div>
         <div class="mb-3">
@@ -25,10 +26,9 @@
             id="email"
             name="email"
             aria-describedby="emailHelp"
+            required
           />
-          <div id="emailHelp" class="form-text">
-            We'll never share your email with anyone else.
-          </div>
+          <div id="emailHelp" class="form-text"></div>
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">Password</label>
@@ -37,11 +37,38 @@
             name="password"
             class="form-control"
             id="password"
+            required
           />
+        </div>
+        <div class="mb-3">
+          <label for="coverImage" class="form-label">Profile Image</label>
+          <div class="mb-3" style="display: flex">
+            <input
+              class="form-control"
+              name="profileImage"
+              type="file"
+              id="profileImage"
+              style="max-height: 40px; min-width: 30%; width: fit-content"
+              onchange="imagePreview(this)"
+            />
+            <div class="card" style="width: 18rem; margin-left: 10%">
+              <img src="/default.png" alt="default" id="avatar" />
+            </div>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
+    <script>
+      const avatar = document.getElementById("avatar");
+
+      function imagePreview(e) {
+        const blob = new Blob([e.files[0]], { type: "image/jpeg" });
+        const blobURL = URL.createObjectURL(blob);
+        avatar.style.display = "block";
+        avatar.src = blobURL;
+      }
+    </script>
     <%- include('./partials/scripts') %>
   </body>
 </html>

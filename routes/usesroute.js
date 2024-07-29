@@ -1,7 +1,21 @@
 const { Router } = require("express");
 const User = require("../models/user");
 const Blog = require("../models/blog");
+const multer = require("multer");
+const path = require("path");
 const router = Router();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.resolve(`./public/profile/`));
+  },
+  filename: function (req, file, cb) {
+    const fileName = `${Date.now()}-${file.originalname}`;
+    cb(null, fileName);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 router.get("/signin", (req, res) => {
   return res.render("signin");
@@ -23,14 +37,22 @@ router.get("/logout", (req, res) => {
   res.clearCookie("token").redirect("/");
 });
 
-router.post("/signup", async (req, res) => {
+router.post("/signup", upload.single("profileImage"), async (req, res) => {
   const { fullName, email, password } = req.body;
-
-  await User.create({
-    fullName,
-    email,
-    password,
-  });
+  if (!req.file) {
+    await User.create({
+      fullName,
+      email,
+      password,
+    });
+  } else {
+    await User.create({
+      fullName,
+      email,
+      password,
+      profileImageURL: `/profile/${req.file.filename}`,
+    });
+  }
   return res.redirect("/");
 });
 

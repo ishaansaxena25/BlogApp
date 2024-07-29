@@ -47,7 +47,10 @@
           </div>
         </div>
         <div class="col-lg-4">
-          <img src="<%= user.profileImageURL %>" />
+          <img
+            src="<%= user.profileImageURL %>"
+            style="width: 20vh; height: 20vh"
+          />
           <pre>Name: <%= user.fullName %></pre>
           <pre>Email: <%= user.email %></pre>
           <a href="/user/edit">
