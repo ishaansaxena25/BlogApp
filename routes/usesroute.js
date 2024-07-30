@@ -25,6 +25,9 @@ router.get("/signup", (req, res) => {
   return res.render("signup");
 });
 router.get("/edit", (req, res) => {
+  if (!req.user) {
+    return res.render("signin", { error: "login to edit profile" });
+  }
   return res.render("editUser", {
     user: req.user,
   });
@@ -40,21 +43,27 @@ router.get("/logout", (req, res) => {
 
 router.post("/signup", upload.single("profileImage"), async (req, res) => {
   const { fullName, email, password } = req.body;
-  if (!req.file) {
-    await User.create({
-      fullName,
-      email,
-      password,
-    });
-  } else {
-    await User.create({
-      fullName,
-      email,
-      password,
-      profileImageURL: `/profile/${req.file.filename}`,
+  try {
+    if (!req.file) {
+      await User.create({
+        fullName,
+        email,
+        password,
+      });
+    } else {
+      await User.create({
+        fullName,
+        email,
+        password,
+        profileImageURL: `/profile/${req.file.filename}`,
+      });
+    }
+    return res.redirect("/");
+  } catch (error) {
+    return res.render("signup", {
+      error: "User already exists",
     });
   }
-  return res.redirect("/");
 });
 
 router.post("/signin", async (req, res) => {
@@ -70,20 +79,24 @@ router.post("/signin", async (req, res) => {
 });
 
 router.get("/profile", async (req, res) => {
+  if (!req.user) {
+    return res.render("signin", {
+      error: "login to access profile",
+    });
+  }
   const user = await User.findById(req.user._id);
   const blogs = await Blog.find({ createdBy: user._id });
   return res.render("profile", { user, blogs });
 });
 
 router.post("/edit", upload.single("profileImage"), async (req, res) => {
-  var user;
   if (!req.file) {
-    user = await User.findByIdAndUpdate(req.user._id, {
+    await User.findByIdAndUpdate(req.user._id, {
       fullName: req.body.fullName,
       email: req.body.email,
     });
   } else {
-    user = await User.findByIdAndUpdate(req.user._id, {
+    await User.findByIdAndUpdate(req.user._id, {
       fullName: req.body.fullName,
       email: req.body.email,
       profileImageURL: `/profile/${req.file.filename}`,

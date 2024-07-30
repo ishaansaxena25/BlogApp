@@ -20,7 +20,9 @@ const upload = multer({ storage: storage });
 
 router.get("/add-new", (req, res) => {
   if (!req.user?._id) {
-    return res.redirect("/user/signin");
+    return res.render("signin", {
+      error: "login or create account to add blogs",
+    });
   }
   return res.render("addblog", {
     user: req.user,
@@ -31,13 +33,13 @@ router.post("/", upload.single("coverImage"), async (req, res) => {
   const { body, title } = req.body;
   var blog;
   if (!req.file) {
-    await Blog.create({
+    blog = await Blog.create({
       body,
       title,
       createdBy: req.user._id,
     });
   } else {
-    await Blog.create({
+    blog = await Blog.create({
       body,
       title,
       createdBy: req.user._id,

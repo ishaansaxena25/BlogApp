@@ -38,10 +38,8 @@ userSchema.pre("save", function (next) {
   const hashedpass = createHmac("sha256", salt)
     .update(user.password)
     .digest("hex");
-  console.log(hashedpass);
   this.salt = salt;
   this.password = hashedpass;
-  console.log("success");
   next();
 });
 
