@@ -13,6 +13,18 @@
         width="700px"
         style="margin: 30px; align-self: center; justify-self: center"
       />
+      <% if (locals.bookmarked) { %>
+      <form method="post" action="/blog/Removebookmark/<%= blog._id %>">
+        <button type="submit">Remove Bookmark</button>
+      </form>
+
+      <% } else { %>
+
+      <form method="post" action="/blog/bookmark/<%= blog._id %>">
+        <button type="submit">Bookmark</button>
+      </form>
+      <% } %>
+
       <pre
         style="
           max-width: 90%;
@@ -31,7 +43,13 @@
       <form action="/blog/comment/<%= blog._id %>" method="post">
         <div class="mb-3">
           <label for="content" class="form-label">Add Comment</label>
-          <input type="text" class="form-control" id="content" name="content" />
+          <input
+            type="text"
+            class="form-control"
+            id="content"
+            name="content"
+            required
+          />
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
