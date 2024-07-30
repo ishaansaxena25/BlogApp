@@ -13,7 +13,7 @@
         width="700px"
         style="margin: 30px; align-self: center; justify-self: center"
       />
-      <% if (locals.bookmarked) { %>
+      <% if (locals.user) { %> <% if (locals.bookmarked) { %>
       <form method="post" action="/blog/Removebookmark/<%= blog._id %>">
         <button type="submit">Remove Bookmark</button>
       </form>
@@ -23,7 +23,7 @@
       <form method="post" action="/blog/bookmark/<%= blog._id %>">
         <button type="submit">Bookmark</button>
       </form>
-      <% } %>
+      <% } %> <% } %>
 
       <pre
         style="

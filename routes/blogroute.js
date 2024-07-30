@@ -31,13 +31,13 @@ router.post("/", upload.single("coverImage"), async (req, res) => {
   const { body, title } = req.body;
   var blog;
   if (!req.file) {
-    blog = await Blog.create({
+    await Blog.create({
       body,
       title,
       createdBy: req.user._id,
     });
   } else {
-    blog = await Blog.create({
+    await Blog.create({
       body,
       title,
       createdBy: req.user._id,
