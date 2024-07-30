@@ -89,7 +89,8 @@ router.post("/edit", upload.single("profileImage"), async (req, res) => {
       profileImageURL: `/profile/${req.file.filename}`,
     });
   }
-  const token = createTokenforUser(user);
-  return res.clearCookie("token").cookie("token", token).redirect("/");
+  const userC = await User.findById(req.user._id);
+  const token = createTokenforUser(userC);
+  return res.cookie("token", token).redirect("/user/profile");
 });
 module.exports = router;
