@@ -5,6 +5,7 @@ const Blog = require("../models/blog");
 const multer = require("multer");
 const path = require("path");
 const { createTokenforUser } = require("../services/JWTauth");
+const { route } = require("./blogroute");
 const router = Router();
 
 const storage = multer.diskStorage({
@@ -34,6 +35,9 @@ router.get("/profile", async (req, res) => {
   }
   const user = await User.findById(req.user._id);
   const blogs = await Blog.find({ createdBy: user._id });
+  if (blogs.length == 0) {
+    return res.render("profile", { user });
+  }
   return res.render("profile", { user, blogs });
 });
 
@@ -55,6 +59,24 @@ router.get("/changePass", (req, res) => {
 
 router.get("/logout", (req, res) => {
   res.clearCookie("token").redirect("/");
+});
+
+router.get("/bookmarks", async (req, res) => {
+  if (!req.user) {
+    return res.render("signin", {
+      error: "login to access bookmars",
+    });
+  }
+  const blogs = await Blog.find({ bookmarks: req.user._id });
+  if (blogs.length == 0) {
+    return res.render("bookmarks", {
+      user: req.user,
+    });
+  }
+  return res.render("bookmarks", {
+    blogs,
+    user: req.user,
+  });
 });
 
 router.post("/signup", upload.single("profileImage"), async (req, res) => {
@@ -135,6 +157,12 @@ router.post("/changePass", async (req, res) => {
   }
   try {
     const blogs = await Blog.find({ createdBy: req.user._id });
+    if (blogs.length == 0) {
+      return res.render("profile", {
+        message: "password changed successfully",
+        user,
+      });
+    }
     return res.render("profile", {
       message: "password changed successfully",
       blogs,

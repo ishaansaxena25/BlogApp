@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <%- include('./partials/head') %>
-    <title>HOMEPAGE</title>
+    <title>Profile</title>
   </head>
   <body>
     <%- include('./partials/nav') %>
@@ -10,6 +10,12 @@
       <div class="row">
         <div class="col-lg-8">
           <h1>Your blogs</h1>
+          <% if (!locals.blogs) { %>
+          <div class="alert alert-info" role="alert">
+            Start by adding your own blogs
+          </div>
+          <a href="/blog/add-new" class="btn btn-primary">Add Blogs</a>
+          <% } else { %>
           <div class="container mt-3">
             <div class="row row-cols-3">
               <% blogs.forEach(blog => { %>
@@ -45,6 +51,7 @@
               <% }) %>
             </div>
           </div>
+          <% } %>
         </div>
         <div class="col-lg-4">
           <img
@@ -53,12 +60,9 @@
           />
           <pre>Name: <%= user.fullName %></pre>
           <pre>Email: <%= user.email %></pre>
-          <a href="/user/edit">
-            <button>Edit profile</button>
-          </a>
-          <a href="/user/changePass">
-            <button>Change password</button>
-          </a>
+          <a href="/user/edit" class="btn btn-primary">Edit Profile</a>
+          <a href="/user/changePass" class="btn btn-primary">change Password</a>
+          <a href="/user/bookmarks" class="btn btn-primary">Bookmarks</a>
         </div>
       </div>
     </div>
