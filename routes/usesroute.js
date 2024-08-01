@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const fs = require("fs");
 const User = require("../models/user");
 const Blog = require("../models/blog");
 const multer = require("multer");
@@ -100,6 +101,10 @@ router.post("/edit", upload.single("profileImage"), async (req, res) => {
       email: req.body.email,
     });
   } else {
+    const user = await User.findById(req.user._id);
+    fs.unlink(`./public/${user.profileImageURL}`, (err) => {
+      if (err) console.log(err);
+    });
     await User.findByIdAndUpdate(req.user._id, {
       fullName: req.body.fullName,
       email: req.body.email,
