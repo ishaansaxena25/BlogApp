@@ -75,10 +75,13 @@ router.post("/edit/:id", upload.single("coverImage"), async (req, res) => {
       title: req.body.title,
     });
   } else {
-    fs.unlink(`./public/${blog.coverImageURL}`, (err) => {
-      if (err) console.log(err);
-    });
-    blog = await Blog.findByIdAndUpdate(req.params.id, {
+    blog = await Blog.findById(req.params.id);
+    if (blog.coverImageURL != "/uploads/default.jpg") {
+      fs.unlink(`./public/${blog.coverImageURL}`, (err) => {
+        if (err) console.log(err);
+      });
+    }
+    await Blog.findByIdAndUpdate(req.params.id, {
       body: req.body.body,
       title: req.body.title,
       coverImageURL: `/uploads/${req.file.filename}`,
@@ -108,6 +111,7 @@ router.post("/", upload.single("coverImage"), async (req, res) => {
 });
 
 router.post("/delete/:id", async (req, res) => {
+  const comments = await Comment.deleteMany({ BlogId: req.params.id });
   const blog = await Blog.findByIdAndDelete(req.params.id);
   if (blog.coverImageURL != "/uploads/default.jpg") {
     fs.unlink(`./public/${blog.coverImageURL}`, (err) => {
