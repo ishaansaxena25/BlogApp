@@ -58,6 +58,20 @@ userSchema.static("matchPass", async function (email, password) {
   //   return hashedpass === inpPass;
 });
 
+userSchema.static("ChangePass", async function (_id, password, newPass) {
+  const user = await this.findOne({ _id });
+  if (!user) throw new Error("user not found");
+
+  const salt = user.salt;
+  const hashedpass = user.password;
+  const inpPass = createHmac("sha256", salt).update(password).digest("hex");
+
+  if (hashedpass !== inpPass) throw new Error("incorrect password");
+  const NewPassword = createHmac("sha256", salt).update(newPass).digest("hex");
+
+  return NewPassword;
+});
+
 const User = model("user", userSchema);
 
 module.exports = User;

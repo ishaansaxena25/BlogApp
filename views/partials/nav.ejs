@@ -62,3 +62,11 @@
   <div class="alert alert-warning" role="alert"><%= locals.error %></div>
 </div>
 <% } %>
+
+<% if (locals.message) { %>
+  <div class="container mt-4">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <%= locals.message %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>  </div>
+<% } %>

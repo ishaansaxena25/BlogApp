@@ -24,6 +24,18 @@ router.get("/signin", (req, res) => {
 router.get("/signup", (req, res) => {
   return res.render("signup");
 });
+
+router.get("/profile", async (req, res) => {
+  if (!req.user) {
+    return res.render("signin", {
+      error: "login to access profile",
+    });
+  }
+  const user = await User.findById(req.user._id);
+  const blogs = await Blog.find({ createdBy: user._id });
+  return res.render("profile", { user, blogs });
+});
+
 router.get("/edit", (req, res) => {
   if (!req.user) {
     return res.render("signin", { error: "login to edit profile" });
@@ -34,7 +46,10 @@ router.get("/edit", (req, res) => {
 });
 
 router.get("/changePass", (req, res) => {
-  return res.render("changePass");
+  if (!req.user) {
+    return res.render("signin", { error: "login to change password" });
+  }
+  return res.render("changePass", { user: req.user });
 });
 
 router.get("/logout", (req, res) => {
@@ -78,17 +93,6 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-router.get("/profile", async (req, res) => {
-  if (!req.user) {
-    return res.render("signin", {
-      error: "login to access profile",
-    });
-  }
-  const user = await User.findById(req.user._id);
-  const blogs = await Blog.find({ createdBy: user._id });
-  return res.render("profile", { user, blogs });
-});
-
 router.post("/edit", upload.single("profileImage"), async (req, res) => {
   if (!req.file) {
     await User.findByIdAndUpdate(req.user._id, {
@@ -106,4 +110,34 @@ router.post("/edit", upload.single("profileImage"), async (req, res) => {
   const token = createTokenforUser(userC);
   return res.cookie("token", token).redirect("/user/profile");
 });
+
+router.post("/changePass", async (req, res) => {
+  try {
+    const newPass = await User.ChangePass(
+      req.user._id,
+      req.body.oldPass,
+      req.body.newPass
+    );
+    user = await User.findByIdAndUpdate(req.user._id, {
+      password: newPass,
+    });
+    console.log("successful");
+  } catch (error) {
+    return res.render("changePass", {
+      error: "incorrect password",
+      user: req.user,
+    });
+  }
+  try {
+    const blogs = await Blog.find({ createdBy: req.user._id });
+    return res.render("profile", {
+      message: "password changed successfully",
+      blogs,
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 module.exports = router;
