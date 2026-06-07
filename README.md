@@ -1,31 +1,75 @@
 # BlogBubble
 
-A full-stack blog platform with JWT-based authentication, content management,
-Redis caching, and automated image cleanup.
+A full-stack blog platform with JWT-based authentication, content management, Redis caching, local image uploads, and a modern, responsive React frontend.
 
-## Tech Stack
+---
+
+## 📁 Repository Structure
+
+This repository is organized as a monorepo containing both the backend service and the frontend client:
+
+- **Root Directory (`/`)**: Node.js and Express REST API backend service.
+- **[/client](file:///d:/Courses/Web%20Dev%28repository%29/blogApp/client/)**: React + Vite frontend client application.
+
+---
+
+## 🛠️ Tech Stack
 
 - **Backend:** Node.js, Express.js, JavaScript
+- **Frontend:** React, Vite, React Query, React Router v6, Tailwind CSS v3
 - **Database:** MongoDB with Mongoose
 - **Auth:** JWT via HTTP-only cookie or Bearer token
 - **Caching:** Redis with graceful fallback when unavailable
-- **File Uploads:** Multer
+- **File Uploads:** Multer (covers blog cover photos and profile images)
 - **Validation:** express-validator
 
-## Getting Started
+---
 
-1. Clone the repository.
-2. Run `npm install`.
-3. Copy `.env.example` to `.env` and fill in the values.
-4. Start MongoDB and, optionally, Redis.
-5. Run `npm start`.
+## 🚀 Getting Started
 
-The API starts at `http://localhost:3000` by default.
+To run the application locally, you will need to start both the backend API server and the frontend client.
 
-## API Reference
+### 1. Set Up and Run the Backend API
 
-All endpoints return JSON. Protected routes accept an HTTP-only `token` cookie
-or an `Authorization: Bearer <token>` header.
+1. From the root directory, install dependencies:
+   ```bash
+   npm install
+   ```
+2. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+   *Configure your MongoDB and Redis connection strings inside the new `.env` file.*
+3. Ensure **MongoDB** (and optionally **Redis**) is running on your machine.
+4. Launch the backend API server:
+   ```bash
+   npm run dev
+   ```
+   The API will start at `http://localhost:3000` by default.
+
+### 2. Set Up and Run the Frontend Client
+
+1. Navigate to the client folder and install dependencies:
+   ```bash
+   cd client
+   npm install
+   ```
+2. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+   *By default, the client is configured to connect to `http://localhost:3000` via Vite development proxy.*
+3. Launch the React development server:
+   ```bash
+   npm run dev
+   ```
+   The client application will start at `http://localhost:5173` in your browser.
+
+---
+
+## 📊 API Reference
+
+All endpoints return JSON. Protected routes accept an HTTP-only `token` cookie or an `Authorization: Bearer <token>` header.
 
 ### Auth
 
@@ -61,18 +105,17 @@ or an `Authorization: Bearer <token>` header.
 
 - Send blog cover images as `coverImage` in `multipart/form-data`.
 - Send profile images as `profileImage` in `multipart/form-data`.
-- Replaced and deleted images are automatically removed from storage.
-- Maximum file size defaults to 5 MB.
-- Accepted formats are JPEG, PNG, and WebP.
+- Replaced and deleted images are automatically removed from storage (Max file size: 5 MB; Accepted: JPEG, PNG, WebP).
 
-## Architecture
+---
+
+## 🏗️ Architecture
 
 ```text
-Client -> JSON REST API -> Controllers -> Mongoose -> MongoDB
-                              |
-                              +-> Redis blog cache
-                              +-> Local image storage
+React Client (Vite) [inside /client] -> JSON REST API -> Controllers -> Mongoose -> MongoDB
+                                                          |
+                                                          +-> Redis blog cache
+                                                          +-> Local image storage
 ```
 
-Routes handle HTTP concerns, controllers coordinate application behavior, and
-services contain reusable authentication and file-management logic.
+Routes handle HTTP concerns, controllers coordinate application behavior, and services contain reusable authentication and file-management logic.

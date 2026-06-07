@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased font-sans min-h-screen selection:bg-brand-500 selection:text-white;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-950;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-800 rounded-full hover:bg-slate-700 transition-colors;
+  }
+}
+
+/* Glassmorphic card styling */
+.glass-card {
+  @apply bg-slate-900/50 backdrop-blur-md border border-slate-800/60 shadow-xl rounded-xl transition-all duration-300;
+}
+
+/* Glassmorphic input styling */
+.glass-input {
+  @apply w-full bg-slate-950/40 border border-slate-800 text-slate-100 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all duration-200 placeholder:text-slate-500;
+}
+
+/* Glassmorphic button styling */
+.glass-button {
+  @apply bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-2.5 rounded-lg transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none shadow-md shadow-brand-600/10 hover:shadow-brand-500/20;
+}
+
+/* Custom styles for profile avatar selection preview */
+.profile-avatar-preview {
+  @apply w-24 h-24 rounded-full object-cover border-2 border-brand-500/50 shadow-lg shadow-brand-500/10;
+}
