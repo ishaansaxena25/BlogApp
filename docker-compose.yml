@@ -1,0 +1,95 @@
+# ============================================
+# BlogBubble — Local Development (MODE 1)
+# Usage: docker compose up --build
+# ============================================
+
+services:
+  # ---------- Backend (Node.js / Express) ----------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blogbubble-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.docker
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - blog_uploads:/app/public/uploads
+      - profile_uploads:/app/public/profile
+    restart: unless-stopped
+    networks:
+      - blogbubble-net
+
+  # ---------- Frontend (React + Vite → Nginx) ----------
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000
+    container_name: blogbubble-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - blogbubble-net
+
+  # ---------- MongoDB ----------
+  mongodb:
+    image: mongo:7
+    container_name: blogbubble-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - blogbubble-net
+
+  # ---------- Redis ----------
+  redis:
+    image: redis:7-alpine
+    container_name: blogbubble-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - blogbubble-net
+
+# ---------- Named Volumes ----------
+volumes:
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local
+  blog_uploads:
+    driver: local
+  profile_uploads:
+    driver: local
+
+# ---------- Networks ----------
+networks:
+  blogbubble-net:
+    driver: bridge

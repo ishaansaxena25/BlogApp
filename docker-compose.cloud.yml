@@ -1,0 +1,51 @@
+# ============================================
+# BlogBubble — Cloud Services (MODE 3)
+# MongoDB & Redis are managed externally (Atlas, ElastiCache, etc.)
+# Usage: docker compose -f docker-compose.cloud.yml up --build -d
+# ============================================
+
+services:
+  # ---------- Backend (Node.js / Express) ----------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blogbubble-backend
+    expose:
+      - "3000"
+    env_file:
+      - .env.cloud
+    volumes:
+      - blog_uploads:/app/public/uploads
+      - profile_uploads:/app/public/profile
+    restart: unless-stopped
+    networks:
+      - blogbubble-net
+
+  # ---------- Nginx Reverse Proxy + SSL ----------
+  nginx:
+    image: nginx:alpine
+    container_name: blogbubble-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - blogbubble-net
+
+# ---------- Named Volumes ----------
+volumes:
+  blog_uploads:
+    driver: local
+  profile_uploads:
+    driver: local
+
+# ---------- Networks ----------
+networks:
+  blogbubble-net:
+    driver: bridge

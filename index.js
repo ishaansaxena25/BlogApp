@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const { optionalAuth } = require("./middlewares/auth");
 const { deleteUploadedFile } = require("./services/fileStorage");
+const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const blogRoutes = require("./routes/blogRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -16,6 +17,10 @@ const port = process.env.PORT || 3000;
 const mongoUrl =
   process.env.MONGODB_URI || "mongodb://localhost:27017/blogbubble";
 
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

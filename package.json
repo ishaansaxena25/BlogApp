@@ -4,6 +4,7 @@
   "main": "index.js",
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.6",
     "dotenv": "^16.4.7",
     "express": "^4.19.2",
     "express-validator": "^7.2.1",

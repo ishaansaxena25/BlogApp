@@ -1,0 +1,30 @@
+# Dependencies
+node_modules
+client/node_modules
+
+# Version control
+.git
+.gitignore
+
+# Environment files
+.env
+.env.*
+
+# Build artifacts
+dist
+client/dist
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode
+.idea
+
+# Docker files (avoid recursive inclusion)
+docker-compose*.yml

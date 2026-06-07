@@ -1,3 +1,31 @@
 node_modules
 connect.js
 commit_history.csv
+
+# Environment files (keep examples tracked)
+.env
+.env.docker
+.env.production
+.env.cloud
+.env.local
+
+# Docker
+nginx/ssl/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Uploads (user-generated content)
+public/uploads/*
+!public/uploads/.gitkeep
+public/profile/*
+!public/profile/.gitkeep

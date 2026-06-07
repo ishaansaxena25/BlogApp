@@ -119,3 +119,50 @@ React Client (Vite) [inside /client] -> JSON REST API -> Controllers -> Mongoose
 ```
 
 Routes handle HTTP concerns, controllers coordinate application behavior, and services contain reusable authentication and file-management logic.
+
+---
+
+## 🐳 Docker Deployment
+
+This project supports **three deployment modes** via Docker Compose:
+
+| Mode | Description | Compose File |
+|------|-------------|-------------|
+| **Mode 1** — Local Development | All services containerized (backend, frontend, MongoDB, Redis) | `docker-compose.yml` |
+| **Mode 2** — VPS Production | Backend + DB on your VPS, frontend on Vercel | `docker-compose.production.yml` |
+| **Mode 3** — Cloud Services | Backend only (uses MongoDB Atlas + Redis Cloud), frontend on Vercel | `docker-compose.cloud.yml` |
+
+### Quick Start (Local Development)
+
+```bash
+# Start all containers
+docker compose up --build
+
+# Access the app
+# Frontend: http://localhost:5173
+# Backend:  http://localhost:3000
+```
+
+### Key Docker Files
+
+```text
+├── Dockerfile                       # Backend multi-stage build
+├── client/Dockerfile                # Frontend multi-stage build (Vite → Nginx)
+├── docker-compose.yml               # Mode 1: Local development
+├── docker-compose.production.yml    # Mode 2: VPS production
+├── docker-compose.cloud.yml         # Mode 3: Cloud services
+├── .env.docker                      # Env for local Docker dev
+├── .env.production.example          # Env template for VPS
+├── .env.cloud.example               # Env template for cloud
+└── nginx/
+    ├── nginx.conf                   # Production reverse proxy
+    └── nginx.local.conf             # Local SPA routing
+```
+
+📖 **For complete step-by-step deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).**
+
+---
+
+## 📄 License
+
+This project is for educational and portfolio purposes.
