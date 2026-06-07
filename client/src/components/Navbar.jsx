@@ -60,6 +60,9 @@ export default function Navbar() {
           <Link to="/" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
             Home
           </Link>
+          <Link to="/blogs" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+            Blogs
+          </Link>
 
           {currentUser ? (
             <>
@@ -125,6 +128,13 @@ export default function Navbar() {
             >
               Home
             </Link>
+            <Link
+              to="/blogs"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-base font-medium text-slate-300 hover:text-white py-1"
+            >
+              Blogs
+            </Link>
 
             {currentUser ? (
               <>
@@ -178,7 +188,7 @@ export default function Navbar() {
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-2 bg-brand-600 hover:bg-brand-505 text-white px-4 py-2 rounded-lg text-base font-semibold text-center"
+                  className="flex items-center space-x-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-base font-semibold text-center"
                 >
                   <UserPlus className="w-5 h-5" />
                   <span>Get Started</span>

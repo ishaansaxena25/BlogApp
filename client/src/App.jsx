@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
+import Blogs from './pages/Blogs';
 import BlogDetail from './pages/BlogDetail';
 import CreateBlog from './pages/CreateBlog';
 import EditBlog from './pages/EditBlog';
@@ -19,10 +20,11 @@ function App() {
         <Navbar />
 
         {/* Page Content */}
-        <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex-1 w-full max-w-[92%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
+            <Route path="/blogs" element={<Blogs />} />
             <Route path="/blogs/:id" element={<BlogDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
