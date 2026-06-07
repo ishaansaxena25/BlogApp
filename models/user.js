@@ -1,4 +1,4 @@
-const { createHmac, hash } = require("crypto");
+const { createHmac, randomUUID } = require("crypto");
 const { Schema, model } = require("mongoose");
 const { createTokenforUser } = require("../services/JWTauth");
 const userSchema = new Schema({
@@ -31,9 +31,9 @@ const userSchema = new Schema({
 
 userSchema.pre("save", function (next) {
   const user = this;
-  if (!user.isModified("password")) return;
+  if (!user.isModified("password")) return next();
 
-  const salt = crypto.randomUUID().toString();
+  const salt = randomUUID();
 
   const hashedpass = createHmac("sha256", salt)
     .update(user.password)

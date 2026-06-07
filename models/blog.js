@@ -5,10 +5,13 @@ const blogSchema = new Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
+      maxlength: 200,
     },
     body: {
       type: String,
       required: true,
+      trim: true,
     },
     coverImageURL: {
       type: String,

@@ -1,37 +1,85 @@
+require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
-const localURL = "mongodb://localhost:27017/blogify";
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
-const { checkforAuthCookie } = require("./middlewares/auth");
+const multer = require("multer");
+const { optionalAuth } = require("./middlewares/auth");
+const { deleteUploadedFile } = require("./services/fileStorage");
+const authRoutes = require("./routes/authRoutes");
+const blogRoutes = require("./routes/blogRoutes");
+const userRoutes = require("./routes/userRoutes");
+
 const app = express();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3000;
+const mongoUrl =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/blogbubble";
 
-const Blog = require("./models/blog");
-const userRoute = require("./routes/usesroute");
-const blogRoute = require("./routes/blogroute");
-
-mongoose
-  .connect(process.env.CLOUD_URL || localURL)
-  .then(console.log("Mongodb Connected"));
-
-app.set("view engine", "ejs");
-app.set("views", path.resolve("./views"));
-
-app.use(express.urlencoded({ urlencoded: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(checkforAuthCookie("token"));
-app.use(express.static(path.resolve("./public")));
-app.get("/", async (req, res) => {
-  const allBlog = await Blog.find({});
-  return res.render("home", {
-    user: req.user,
-    blogs: allBlog,
+app.use(optionalAuth);
+app.use("/uploads", express.static(path.resolve("public/uploads")));
+app.use("/profile", express.static(path.resolve("public/profile")));
+app.use("/default.png", express.static(path.resolve("public/default.png")));
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    name: "BlogBubble API",
+    status: "ok",
+    documentation: "/api",
   });
 });
 
-app.use("/user", userRoute);
-app.use("/blog", blogRoute);
-app.listen(port, () => {
-  console.log(`port started at ${port}`);
+app.get("/api", (req, res) => {
+  res.status(200).json({
+    auth: "/api/auth",
+    blogs: "/api/blogs",
+    users: "/api/users",
+  });
 });
+
+app.use("/api/auth", authRoutes);
+app.use("/api/blogs", blogRoutes);
+app.use("/api/users", userRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+app.use(async (err, req, res, next) => {
+  if (!req.filePersisted) {
+    await deleteUploadedFile(req.file).catch((cleanupError) => {
+      console.error("Failed to clean up upload:", cleanupError);
+    });
+  }
+
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ error: err.message });
+  }
+
+  console.error(err.stack || err);
+  if (err?.code === 11000) {
+    return res.status(409).json({ error: "A unique field already exists" });
+  }
+  return res.status(err.status || 500).json({
+    error: err.message || "Internal server error",
+  });
+});
+
+async function startServer() {
+  await mongoose.connect(mongoUrl);
+  app.listen(port, () => {
+    console.log(`BlogBubble API listening on port ${port}`);
+  });
+}
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error("Failed to start BlogBubble API:", error);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { app, startServer };

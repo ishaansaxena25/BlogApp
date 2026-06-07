@@ -1,6 +1,16 @@
 const JWT = require("jsonwebtoken");
 
-const secret = "de@dpool";
+function getJwtSecret() {
+  if (process.env.JWT_SECRET) {
+    return process.env.JWT_SECRET;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET must be configured in production");
+  }
+
+  return "development-only-secret";
+}
 
 function createTokenforUser(user) {
   const payload = {
@@ -10,16 +20,14 @@ function createTokenforUser(user) {
     fullName: user.fullName,
     role: user.role,
   };
-  const token = JWT.sign(payload, secret);
-  return token;
+
+  return JWT.sign(payload, getJwtSecret(), {
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  });
 }
 
 function validateToken(token) {
-  const payload = JWT.verify(token, secret);
-  return payload;
+  return JWT.verify(token, getJwtSecret());
 }
 
-module.exports = {
-  createTokenforUser,
-  validateToken,
-};
+module.exports = { createTokenforUser, validateToken };
