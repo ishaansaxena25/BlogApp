@@ -1,23 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getProfile, logout } from '../api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import useAuth from '../hooks/useAuth';
 import { Feather, Bookmark, User, LogOut, Menu, X, LogIn, UserPlus } from 'lucide-react';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user: currentUser, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Fetch the logged-in user profile
-  const { data } = useQuery({
-    queryKey: ['user'],
-    queryFn: getProfile,
-    retry: false,
-    staleTime: 1000 * 60 * 5, // don't refetch on every render
-  });
-
-  const currentUser = data?.user;
 
   // Logout mutation
   const logoutMutation = useMutation({

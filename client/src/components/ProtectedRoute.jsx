@@ -1,18 +1,12 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getProfile } from '../api';
 import { Loader2 } from 'lucide-react';
+import useAuth from '../hooks/useAuth';
 
 export default function ProtectedRoute({ children }) {
   const location = useLocation();
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['user'],
-    queryFn: getProfile,
-    retry: false,
-    staleTime: 1000 * 60 * 5, // keep profile fresh but don't hit /me continuously
-  });
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -24,7 +18,7 @@ export default function ProtectedRoute({ children }) {
   }
 
   // If there's an error or no user structure returned, we redirect to login
-  if (isError || !data?.user) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
