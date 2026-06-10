@@ -1,6 +1,7 @@
-const { createHmac, randomUUID } = require("crypto");
+const { createHmac } = require("crypto");
 const { Schema, model } = require("mongoose");
 const { createTokenforUser } = require("../services/JWTauth");
+const { hashPassword, comparePassword } = require("../services/passwords");
 const userSchema = new Schema({
   fullName: {
     type: String,
@@ -27,6 +28,11 @@ const userSchema = new Schema({
     enum: ["USER", "ADMIN"],
     default: "USER",
   },
+  hashVersion: {
+    type: String,
+    enum: ["hmac", "bcrypt"],
+    default: "bcrypt",
+  },
   bio: { type: String, maxlength: 500, default: "" },
   github: { type: String, default: "" },
   linkedin: { type: String, default: "" },
@@ -34,29 +40,31 @@ const userSchema = new Schema({
   website: { type: String, default: "" },
 });
 
-userSchema.pre("save", function (next) {
+userSchema.pre("save", async function () {
   const user = this;
-  if (!user.isModified("password")) return next();
+  if (!user.isModified("password")) return;
 
-  const salt = randomUUID();
-
-  const hashedpass = createHmac("sha256", salt)
-    .update(user.password)
-    .digest("hex");
-  this.salt = salt;
-  this.password = hashedpass;
-  next();
+  this.password = await hashPassword(user.password);
+  this.hashVersion = "bcrypt";
+  this.salt = undefined;
 });
 
 userSchema.static("matchPass", async function (email, password) {
   const user = await this.findOne({ email });
   if (!user) throw new Error("user not found");
 
-  const salt = user.salt;
-  const hashedpass = user.password;
-  const inpPass = createHmac("sha256", salt).update(password).digest("hex");
-
-  if (hashedpass !== inpPass) throw new Error("incorrect password");
+  if (user.hashVersion === "bcrypt") {
+    const matches = await comparePassword(password, user.password);
+    if (!matches) throw new Error("incorrect password");
+  } else {
+    const inpPass = createHmac("sha256", user.salt)
+      .update(password)
+      .digest("hex");
+    if (user.password !== inpPass) throw new Error("incorrect password");
+    user.password = password;
+    user.hashVersion = "bcrypt";
+    await user.save();
+  }
 
   const token = createTokenforUser(user);
   return token;
@@ -67,14 +75,16 @@ userSchema.static("ChangePass", async function (_id, password, newPass) {
   const user = await this.findOne({ _id });
   if (!user) throw new Error("user not found");
 
-  const salt = user.salt;
-  const hashedpass = user.password;
-  const inpPass = createHmac("sha256", salt).update(password).digest("hex");
+  const matches =
+    user.hashVersion === "bcrypt"
+      ? await comparePassword(password, user.password)
+      : user.password ===
+        createHmac("sha256", user.salt).update(password).digest("hex");
+  if (!matches) throw new Error("incorrect password");
 
-  if (hashedpass !== inpPass) throw new Error("incorrect password");
-  const NewPassword = createHmac("sha256", salt).update(newPass).digest("hex");
-
-  return NewPassword;
+  user.password = newPass;
+  user.hashVersion = "bcrypt";
+  await user.save();
 });
 
 const User = model("user", userSchema);

@@ -56,12 +56,11 @@ async function updateProfile(req, res) {
 
 async function changePassword(req, res) {
   try {
-    const newPassword = await User.ChangePass(
+    await User.ChangePass(
       req.user._id,
       req.body.oldPassword,
       req.body.newPassword
     );
-    await User.findByIdAndUpdate(req.user._id, { password: newPassword });
     return res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     return res.status(400).json({ error: "Current password is incorrect" });
