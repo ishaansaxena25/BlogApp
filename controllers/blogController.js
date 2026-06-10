@@ -18,7 +18,7 @@ async function getBlog(req, res) {
 async function createBlog(req, res) {
   const blog = await blogService.createBlog({
     title: req.body.title,
-    body: req.body.body,
+    content: req.body.content,
     userId: req.user._id,
     file: req.file,
   });
@@ -30,7 +30,7 @@ async function updateBlog(req, res) {
   const result = await blogService.updateBlog({
     id: req.params.id,
     title: req.body.title,
-    body: req.body.body,
+    content: req.body.content,
     user: req.user,
     file: req.file,
   });

@@ -40,6 +40,28 @@
   @apply w-24 h-24 rounded-full object-cover border-2 border-brand-500/50 shadow-lg shadow-brand-500/10;
 }
 
+.editor-shell .codex-editor__redactor {
+  padding-bottom: 4rem !important;
+}
+
+.editor-shell .ce-block__content,
+.editor-shell .ce-toolbar__content {
+  max-width: 760px;
+}
+
+.editor-shell .ce-paragraph,
+.editor-shell .ce-header,
+.editor-shell .cdx-block {
+  color: #e2e8f0;
+}
+
+.editor-shell .ce-toolbar__plus,
+.editor-shell .ce-toolbar__settings-btn,
+.editor-shell .ce-popover {
+  color: #cbd5e1;
+  background: #0f172a;
+}
+
 /* Sexy keyframe animations */
 @keyframes float-slow {
   0%, 100% {
@@ -133,4 +155,3 @@
   opacity: 1;
   transform: translateY(0);
 }
-

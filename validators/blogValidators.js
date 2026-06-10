@@ -1,4 +1,5 @@
 const { body, param } = require("express-validator");
+const { isValidEditorContent } = require("../services/editorContent");
 
 const blogIdValidator = [
   param("id").isMongoId().withMessage("A valid blog ID is required"),
@@ -11,7 +12,9 @@ const createBlogValidator = [
     .withMessage("Title is required")
     .isLength({ max: 200 })
     .withMessage("Title cannot exceed 200 characters"),
-  body("body").trim().notEmpty().withMessage("Body is required"),
+  body("content")
+    .custom(isValidEditorContent)
+    .withMessage("Content must contain at least one Editor.js block"),
 ];
 
 const updateBlogValidator = [
@@ -23,11 +26,10 @@ const updateBlogValidator = [
     .withMessage("Title cannot be empty")
     .isLength({ max: 200 })
     .withMessage("Title cannot exceed 200 characters"),
-  body("body")
+  body("content")
     .optional()
-    .trim()
-    .notEmpty()
-    .withMessage("Body cannot be empty"),
+    .custom(isValidEditorContent)
+    .withMessage("Content must contain at least one Editor.js block"),
 ];
 
 const commentValidator = [

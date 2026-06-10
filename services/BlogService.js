@@ -2,6 +2,7 @@ const Blog = require("../models/blog");
 const Comment = require("../models/comment");
 const CacheService = require("./CacheService");
 const { uploadFile, deleteStoredFile } = require("./storage");
+const { sanitizeEditorContent } = require("./editorContent");
 
 const BLOG_CACHE_KEY = "blogs:all";
 
@@ -54,11 +55,11 @@ class BlogService {
     return { blog, comments, bookmarked };
   }
 
-  async createBlog({ title, body, userId, file }) {
+  async createBlog({ title, content, userId, file }) {
     const coverImageURL = await uploadFile(file, "uploads");
     const blog = await this.Blog.create({
       title,
-      body,
+      content: sanitizeEditorContent(content),
       createdBy: userId,
       ...(coverImageURL && { coverImageURL }),
     });
@@ -66,14 +67,14 @@ class BlogService {
     return blog;
   }
 
-  async updateBlog({ id, title, body, user, file }) {
+  async updateBlog({ id, title, content, user, file }) {
     const blog = await this.Blog.findById(id);
     if (!blog) return { status: "not_found" };
     if (!this.canManage(user, blog)) return { status: "forbidden" };
 
     const oldCoverImageUrl = blog.coverImageURL;
     if (title !== undefined) blog.title = title;
-    if (body !== undefined) blog.body = body;
+    if (content !== undefined) blog.content = sanitizeEditorContent(content);
     if (file) blog.coverImageURL = await uploadFile(file, "uploads");
     await blog.save();
 

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, User, BookmarkX } from 'lucide-react';
 
 export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBookmark = null }) {
-  const { _id, title, body, createdBy, coverImageURL, createdAt } = blog;
+  const { _id, title, content, excerpt, createdBy, coverImageURL, createdAt } = blog;
 
   // Resolve cover image path
   const getCoverImageUrl = (path) => {
@@ -25,10 +25,10 @@ export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBoo
   };
 
   // Excerpt generation
-  const getExcerpt = (text) => {
-    if (!text) return '';
-    // Strip simple markdown if needed, otherwise just slice
-    const cleanText = text.replace(/[#*`_]/g, '');
+  const getExcerpt = () => {
+    if (excerpt) return excerpt;
+    const text = content?.blocks?.find((block) => block.type === 'paragraph')?.data?.text || '';
+    const cleanText = text.replace(/<[^>]*>/g, '');
     return cleanText.length > 100 ? `${cleanText.slice(0, 100)}...` : cleanText;
   };
 
@@ -75,7 +75,7 @@ export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBoo
 
           {/* Excerpt */}
           <p className="text-sm text-slate-400 line-clamp-3 mb-4 leading-relaxed">
-            {getExcerpt(body)}
+            {getExcerpt()}
           </p>
         </div>
 

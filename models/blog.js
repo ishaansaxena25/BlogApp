@@ -8,10 +8,9 @@ const blogSchema = new Schema(
       trim: true,
       maxlength: 200,
     },
-    body: {
-      type: String,
+    content: {
+      type: Schema.Types.Mixed,
       required: true,
-      trim: true,
     },
     coverImageURL: {
       type: String,

@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
+import Editor from './Editor';
+
+const emptyContent = { blocks: [{ type: 'paragraph', data: { text: '' } }] };
 
 export default function BlogForm({ initialData = null, onSubmit, isPending, serverErrors = null }) {
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [content, setContent] = useState(initialData?.content || emptyContent);
   const [coverImage, setCoverImage] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
-
-  // Pre-fill form when editing
-  useEffect(() => {
-    if (initialData) {
-      setTitle(initialData.title || '');
-      setBody(initialData.body || '');
-      if (initialData.coverImageURL) {
-        const server = import.meta.env.VITE_API_URL || '';
-        const fullUrl = initialData.coverImageURL.startsWith('http')
-          ? initialData.coverImageURL
-          : `${server}${initialData.coverImageURL}`;
-        setPreviewUrl(fullUrl);
-      }
-    }
-  }, [initialData]);
+  const server = import.meta.env.VITE_API_URL || '';
+  const initialPreview = initialData?.coverImageURL
+    ? initialData.coverImageURL.startsWith('http')
+      ? initialData.coverImageURL
+      : `${server}${initialData.coverImageURL}`
+    : '';
+  const [previewUrl, setPreviewUrl] = useState(initialPreview);
 
   // Clean up ObjectURL preview on unmount
   useEffect(() => {
@@ -64,11 +58,11 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ title, body, coverImage });
+    onSubmit({ title, content, coverImage });
   };
 
   const titleError = getFieldError('title');
-  const bodyError = getFieldError('body');
+  const contentError = getFieldError('content');
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto">
@@ -146,22 +140,14 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
         )}
       </div>
 
-      {/* Content Textarea */}
+      {/* Editor.js Content */}
       <div>
-        <label htmlFor="body" className="block text-sm font-semibold text-slate-200 mb-2">
+        <span className="block text-sm font-semibold text-slate-200 mb-2">
           Story Content
-        </label>
-        <textarea
-          id="body"
-          rows="10"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Tell your story..."
-          disabled={isPending}
-          className={`glass-input text-base resize-y ${bodyError ? 'border-red-500/60 focus:border-red-500 focus:ring-red-500' : ''}`}
-        />
-        {bodyError && (
-          <p className="mt-1.5 text-xs font-medium text-red-400">{bodyError}</p>
+        </span>
+        <Editor initialData={content} onChange={setContent} disabled={isPending} />
+        {contentError && (
+          <p className="mt-1.5 text-xs font-medium text-red-400">{contentError}</p>
         )}
       </div>
 
@@ -169,7 +155,7 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
       <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-900">
         <button
           type="submit"
-          disabled={isPending || !title.trim() || !body.trim()}
+          disabled={isPending || !title.trim() || !content?.blocks?.length}
           className="glass-button flex items-center justify-center space-x-2 px-6 py-3 cursor-pointer"
         >
           {isPending ? (

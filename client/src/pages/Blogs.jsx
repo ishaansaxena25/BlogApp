@@ -20,7 +20,7 @@ export default function Blogs() {
     const query = searchQuery.toLowerCase();
     return (
       blog.title?.toLowerCase().includes(query) ||
-      blog.body?.toLowerCase().includes(query) ||
+      blog.excerpt?.toLowerCase().includes(query) ||
       blog.createdBy?.fullName?.toLowerCase().includes(query)
     );
   });

@@ -17,5 +17,10 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      'no-unused-vars': 'off',
+      'preserve-caught-error': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])

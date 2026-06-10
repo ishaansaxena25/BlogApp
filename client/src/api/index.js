@@ -97,7 +97,7 @@ export async function getBlog(id) {
 }
 
 export async function createBlog(formData) {
-  // formData should contain title, body, and coverImage
+  // formData should contain title, Editor.js content, and coverImage
   return await apiFetch('/blogs', {
     method: 'POST',
     body: formData,
@@ -105,9 +105,18 @@ export async function createBlog(formData) {
 }
 
 export async function updateBlog(id, formData) {
-  // formData can contain title, body, and coverImage
+  // formData can contain title, Editor.js content, and coverImage
   return await apiFetch(`/blogs/${id}`, {
     method: 'PATCH',
+    body: formData,
+  });
+}
+
+export async function uploadEditorImage(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+  return apiFetch('/uploads/editor-image', {
+    method: 'POST',
     body: formData,
   });
 }

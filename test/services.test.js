@@ -73,7 +73,9 @@ test("BlogService reuses and invalidates the list cache", async () => {
 
   await service.createBlog({
     title: "Title",
-    body: "Body",
+    content: {
+      blocks: [{ type: "paragraph", data: { text: "Body" } }],
+    },
     userId: "user-1",
   });
   assert.equal(calls.at(-1), "delete:blogs:all");

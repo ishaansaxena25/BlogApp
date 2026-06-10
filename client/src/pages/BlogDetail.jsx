@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getBlog, deleteBlog, bookmarkBlog, unbookmarkBlog, getProfile } from '../api';
 import CommentSection from '../components/CommentSection';
+import EditorRenderer from '../components/EditorRenderer';
 import { Calendar, User, Bookmark, Edit2, Trash2, ArrowLeft, Loader2, BookmarkCheck } from 'lucide-react';
 
 export default function BlogDetail() {
@@ -201,9 +202,9 @@ export default function BlogDetail() {
           </div>
         </div>
 
-        {/* Content body */}
-        <div className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans whitespace-pre-wrap py-4">
-          {blog.body}
+        {/* Editor.js content */}
+        <div className="text-base sm:text-lg py-4">
+          <EditorRenderer content={blog.content} />
         </div>
       </article>
 

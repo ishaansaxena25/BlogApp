@@ -56,10 +56,10 @@ export default function EditBlog() {
     },
   });
 
-  const handleSubmit = ({ title, body, coverImage }) => {
+  const handleSubmit = ({ title, content, coverImage }) => {
     const formData = new FormData();
     formData.append('title', title);
-    formData.append('body', body);
+    formData.append('content', JSON.stringify(content));
     if (coverImage) {
       formData.append('coverImage', coverImage);
     }
