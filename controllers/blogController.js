@@ -3,7 +3,10 @@ const BlogService = require("../services/BlogService");
 const blogService = new BlogService();
 
 async function getAllBlogs(req, res) {
-  const blogs = await blogService.listBlogs();
+  const blogs = await blogService.listBlogs({
+    status: req.query.status,
+    user: req.user,
+  });
   return res.status(200).json({ blogs });
 }
 
@@ -21,6 +24,7 @@ async function createBlog(req, res) {
     content: req.body.content,
     excerpt: req.body.excerpt,
     tags: req.body.tags,
+    status: req.body.status,
     userId: req.user._id,
     file: req.file,
   });
@@ -35,6 +39,7 @@ async function updateBlog(req, res) {
     content: req.body.content,
     excerpt: req.body.excerpt,
     tags: req.body.tags,
+    status: req.body.status,
     user: req.user,
     file: req.file,
   });

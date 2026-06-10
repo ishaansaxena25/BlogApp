@@ -15,6 +15,8 @@ export default function Profile() {
 
   const user = data?.user;
   const authoredBlogs = data?.blogs || [];
+  const publishedBlogs = authoredBlogs.filter((blog) => blog.status !== 'DRAFT');
+  const draftBlogs = authoredBlogs.filter((blog) => blog.status === 'DRAFT');
 
   // Edit Profile Form State
   const [fullName, setFullName] = useState('');
@@ -422,12 +424,12 @@ export default function Profile() {
       <section className="space-y-6">
         <div className="flex items-center space-x-2 text-lg font-bold text-white border-b border-slate-900 pb-3">
           <BookOpen className="w-5 h-5 text-brand-400" />
-          <span>Your Stories ({authoredBlogs.length})</span>
+          <span>Your Published Stories ({publishedBlogs.length})</span>
         </div>
 
-        {authoredBlogs.length > 0 ? (
+        {publishedBlogs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            {authoredBlogs.map((blog) => (
+            {publishedBlogs.map((blog) => (
               <BlogCard key={blog._id} blog={blog} />
             ))}
           </div>
@@ -436,6 +438,22 @@ export default function Profile() {
             <p className="text-slate-400 font-medium">You haven't written any stories yet.</p>
             <p className="text-xs text-slate-500">Your published articles will show up here.</p>
           </div>
+        )}
+      </section>
+
+      <section className="space-y-6">
+        <div className="flex items-center space-x-2 text-lg font-bold text-white border-b border-slate-900 pb-3">
+          <BookOpen className="w-5 h-5 text-amber-400" />
+          <span>Your Drafts ({draftBlogs.length})</span>
+        </div>
+        {draftBlogs.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {draftBlogs.map((blog) => (
+              <BlogCard key={blog._id} blog={blog} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500">No saved drafts.</p>
         )}
       </section>
     </main>

@@ -18,7 +18,11 @@ export default function CreateBlog() {
       // Invalidate blogs listing query
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
       // Redirect to the new blog page
-      navigate(`/blogs/${data.blog._id}`);
+      navigate(
+        data.blog.status === 'DRAFT'
+          ? `/blogs/${data.blog._id}/edit`
+          : `/blogs/${data.blog.slug || data.blog._id}`
+      );
     },
     onError: (err) => {
       // Capture detailed express-validator output or general backend error
@@ -26,13 +30,14 @@ export default function CreateBlog() {
     },
   });
 
-  const handleSubmit = ({ title, content, excerpt, tags, coverImage }) => {
+  const handleSubmit = ({ title, content, excerpt, tags, status, coverImage }) => {
     // Construct FormData as req is multipart/form-data
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', JSON.stringify(content));
     if (excerpt) formData.append('excerpt', excerpt);
     formData.append('tags', JSON.stringify(tags));
+    formData.append('status', status);
     if (coverImage) {
       formData.append('coverImage', coverImage);
     }

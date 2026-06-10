@@ -56,6 +56,11 @@ export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBoo
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+        {blog.status === 'DRAFT' && (
+          <span className="absolute top-3 right-3 rounded-md bg-amber-500/90 px-2 py-1 text-xs font-bold text-slate-950">
+            Draft
+          </span>
+        )}
       </Link>
 
       {/* Card Content */}

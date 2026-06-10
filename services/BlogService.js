@@ -30,11 +30,21 @@ class BlogService {
     );
   }
 
-  async listBlogs() {
+  async listBlogs({ status, user } = {}) {
+    if (status === "draft") {
+      if (!user) return [];
+      return this.Blog.find({
+        status: "DRAFT",
+        ...(user.role !== "ADMIN" && { createdBy: user._id }),
+      })
+        .populate("createdBy", "fullName profileImageURL")
+        .sort({ createdAt: -1 });
+    }
+
     const cachedBlogs = await this.cache.get(BLOG_CACHE_KEY);
     if (cachedBlogs) return cachedBlogs;
 
-    const blogs = await this.Blog.find({})
+    const blogs = await this.Blog.find({ status: "PUBLISHED" })
       .populate("createdBy", "fullName profileImageURL")
       .sort({ createdAt: -1 });
     await this.cache.set(BLOG_CACHE_KEY, blogs);
@@ -50,6 +60,14 @@ class BlogService {
       "fullName profileImageURL"
     );
     if (!blog) return null;
+    const ownerId = blog.createdBy?._id || blog.createdBy;
+    if (
+      blog.status === "DRAFT" &&
+      (!user ||
+        (user.role !== "ADMIN" && ownerId.toString() !== user._id.toString()))
+    ) {
+      return null;
+    }
 
     const comments = await this.Comment.find({ BlogId: blog._id })
       .populate("UserId", "fullName profileImageURL")
@@ -64,7 +82,7 @@ class BlogService {
     return { blog, comments, bookmarked };
   }
 
-  async createBlog({ title, content, excerpt, tags, userId, file }) {
+  async createBlog({ title, content, excerpt, tags, status, userId, file }) {
     const coverImageURL = await uploadFile(file, "uploads");
     const sanitizedContent = sanitizeEditorContent(content);
     const blog = await this.Blog.create({
@@ -73,6 +91,7 @@ class BlogService {
       content: sanitizedContent,
       excerpt: excerpt || createExcerpt(sanitizedContent),
       tags: tags || [],
+      status: status || "PUBLISHED",
       readingTime: calculateReadingTime(sanitizedContent),
       createdBy: userId,
       ...(coverImageURL && { coverImageURL }),
@@ -81,7 +100,7 @@ class BlogService {
     return blog;
   }
 
-  async updateBlog({ id, title, content, excerpt, tags, user, file }) {
+  async updateBlog({ id, title, content, excerpt, tags, status, user, file }) {
     const blog = await this.Blog.findById(id);
     if (!blog) return { status: "not_found" };
     if (!this.canManage(user, blog)) return { status: "forbidden" };
@@ -98,6 +117,7 @@ class BlogService {
     }
     if (excerpt !== undefined) blog.excerpt = excerpt;
     if (tags !== undefined) blog.tags = tags;
+    if (status !== undefined) blog.status = status;
     if (file) blog.coverImageURL = await uploadFile(file, "uploads");
     await blog.save();
 

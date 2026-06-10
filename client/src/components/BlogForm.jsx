@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 import Editor from './Editor';
 
@@ -17,6 +17,24 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
       : `${server}${initialData.coverImageURL}`
     : '';
   const [previewUrl, setPreviewUrl] = useState(initialPreview);
+  const submitStatus = useRef(initialData?.status || 'PUBLISHED');
+  const onSubmitRef = useRef(onSubmit);
+  const pendingRef = useRef(isPending);
+  const valuesRef = useRef(null);
+
+  useEffect(() => {
+    onSubmitRef.current = onSubmit;
+    pendingRef.current = isPending;
+    valuesRef.current = {
+      title,
+      content,
+      excerpt,
+      tags: tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+      status: 'DRAFT',
+      coverImage,
+      autoSave: true,
+    };
+  }, [onSubmit, isPending, title, content, excerpt, tags, coverImage]);
 
   // Clean up ObjectURL preview on unmount
   useEffect(() => {
@@ -26,6 +44,16 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
       }
     };
   }, [coverImage, previewUrl]);
+
+  useEffect(() => {
+    if (initialData?.status !== 'DRAFT') return undefined;
+    const interval = window.setInterval(() => {
+      if (!pendingRef.current && valuesRef.current.title.trim()) {
+        onSubmitRef.current(valuesRef.current);
+      }
+    }, 30_000);
+    return () => window.clearInterval(interval);
+  }, [initialData?.status]);
 
   // Extract field-specific error messages from validation output
   const getFieldError = (fieldName) => {
@@ -65,6 +93,7 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
       content,
       excerpt,
       tags: tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+      status: submitStatus.current,
       coverImage,
     });
   };
@@ -192,13 +221,22 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
       <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-900">
         <button
           type="submit"
+          onClick={() => { submitStatus.current = 'DRAFT'; }}
+          disabled={isPending || !title.trim() || !content?.blocks?.length}
+          className="px-6 py-3 rounded-lg border border-slate-700 text-slate-200 hover:bg-slate-900 disabled:opacity-50"
+        >
+          Save as Draft
+        </button>
+        <button
+          type="submit"
+          onClick={() => { submitStatus.current = 'PUBLISHED'; }}
           disabled={isPending || !title.trim() || !content?.blocks?.length}
           className="glass-button flex items-center justify-center space-x-2 px-6 py-3 cursor-pointer"
         >
           {isPending ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Publishing...</span>
+              <span>Saving...</span>
             </>
           ) : (
             <span>Publish Post</span>

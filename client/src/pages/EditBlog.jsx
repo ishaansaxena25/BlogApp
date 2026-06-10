@@ -43,25 +43,29 @@ export default function EditBlog() {
   // Mutation to update blog
   const mutation = useMutation({
     mutationFn: (formData) => updateBlog(id, formData),
-    onSuccess: () => {
+    onSuccess: (data, formData) => {
       setError(null);
       // Invalidate queries to reload updated details
       queryClient.invalidateQueries({ queryKey: ['blog', id] });
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
       // Redirect back to blog page
-      navigate(`/blogs/${id}`);
+      if (formData.get('status') === 'PUBLISHED') {
+        navigate(`/blogs/${data.blog.slug || id}`);
+      }
     },
     onError: (err) => {
       setError(err);
     },
   });
 
-  const handleSubmit = ({ title, content, excerpt, tags, coverImage }) => {
+  const handleSubmit = ({ title, content, excerpt, tags, status, coverImage, autoSave }) => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', JSON.stringify(content));
     formData.append('excerpt', excerpt);
     formData.append('tags', JSON.stringify(tags));
+    formData.append('status', status);
+    if (autoSave) formData.append('autoSave', 'true');
     if (coverImage) {
       formData.append('coverImage', coverImage);
     }

@@ -14,6 +14,10 @@ const blogIdentifierValidator = [
 ];
 
 const metadataValidators = [
+  body("status")
+    .optional()
+    .isIn(["DRAFT", "PUBLISHED"])
+    .withMessage("Status must be DRAFT or PUBLISHED"),
   body("excerpt")
     .optional()
     .trim()
