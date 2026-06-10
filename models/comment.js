@@ -17,6 +17,15 @@ const commentSchema = new Schema(
       ref: "user",
       required: true,
     },
+    edited: {
+      type: Boolean,
+      default: false,
+    },
+    parentComment: {
+      type: Schema.Types.ObjectId,
+      ref: "comment",
+      default: null,
+    },
   },
   { timestamps: true }
 );

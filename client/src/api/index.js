@@ -132,10 +132,23 @@ export async function deleteBlog(id) {
   });
 }
 
-export async function addComment(blogId, { content }) {
+export async function addComment(blogId, { content, parentComment }) {
   return await apiFetch(`/blogs/${blogId}/comments`, {
     method: 'POST',
+    body: { content, ...(parentComment && { parentComment }) },
+  });
+}
+
+export async function updateComment(blogId, commentId, content) {
+  return apiFetch(`/blogs/${blogId}/comments/${commentId}`, {
+    method: 'PATCH',
     body: { content },
+  });
+}
+
+export async function deleteComment(blogId, commentId) {
+  return apiFetch(`/blogs/${blogId}/comments/${commentId}`, {
+    method: 'DELETE',
   });
 }
 

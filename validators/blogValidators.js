@@ -79,6 +79,17 @@ const updateBlogValidator = [
 const commentValidator = [
   ...blogIdValidator,
   body("content").trim().notEmpty().withMessage("Comment content is required"),
+  body("parentComment").optional().isMongoId().withMessage("Invalid parent comment"),
+];
+
+const commentMutationValidator = [
+  param("blogId").isMongoId().withMessage("A valid blog ID is required"),
+  param("commentId").isMongoId().withMessage("A valid comment ID is required"),
+];
+
+const updateCommentValidator = [
+  ...commentMutationValidator,
+  body("content").trim().notEmpty().withMessage("Comment content is required"),
 ];
 
 module.exports = {
@@ -87,4 +98,6 @@ module.exports = {
   createBlogValidator,
   updateBlogValidator,
   commentValidator,
+  commentMutationValidator,
+  updateCommentValidator,
 };

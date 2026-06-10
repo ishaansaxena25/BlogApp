@@ -156,15 +156,58 @@ class BlogService {
     return { status: "deleted" };
   }
 
-  async addComment({ blogId, content, userId }) {
+  async addComment({ blogId, content, userId, parentComment }) {
     const blogExists = await this.Blog.exists({ _id: blogId });
     if (!blogExists) return null;
+    if (parentComment) {
+      const parent = await this.Comment.findOne({
+        _id: parentComment,
+        BlogId: blogId,
+      });
+      if (!parent) return { error: "parent_not_found" };
+      if (parent.parentComment) return { error: "reply_depth" };
+    }
 
     return this.Comment.create({
       content,
       BlogId: blogId,
       UserId: userId,
+      parentComment: parentComment || null,
     });
+  }
+
+  async updateComment({ blogId, commentId, content, user }) {
+    const comment = await this.Comment.findOne({
+      _id: commentId,
+      BlogId: blogId,
+    });
+    if (!comment) return { status: "not_found" };
+    if (comment.UserId.toString() !== user._id.toString()) {
+      return { status: "forbidden" };
+    }
+    comment.content = content;
+    comment.edited = true;
+    await comment.save();
+    return { status: "updated", comment };
+  }
+
+  async deleteComment({ blogId, commentId, user }) {
+    const comment = await this.Comment.findOne({
+      _id: commentId,
+      BlogId: blogId,
+    });
+    if (!comment) return { status: "not_found" };
+    if (
+      user.role !== "ADMIN" &&
+      comment.UserId.toString() !== user._id.toString()
+    ) {
+      return { status: "forbidden" };
+    }
+    await Promise.all([
+      this.Comment.deleteMany({ parentComment: comment._id }),
+      this.Comment.deleteOne({ _id: comment._id }),
+    ]);
+    return { status: "deleted" };
   }
 
   async setBookmark({ blogId, userId, bookmarked }) {

@@ -74,11 +74,49 @@ async function addComment(req, res) {
     blogId: req.params.id,
     content: req.body.content,
     userId: req.user._id,
+    parentComment: req.body.parentComment,
   });
   if (!comment) {
     return res.status(404).json({ error: "Blog not found" });
   }
+  if (comment.error === "parent_not_found") {
+    return res.status(404).json({ error: "Parent comment not found" });
+  }
+  if (comment.error === "reply_depth") {
+    return res.status(400).json({ error: "Replies cannot be nested" });
+  }
   return res.status(201).json({ comment });
+}
+
+async function updateComment(req, res) {
+  const result = await blogService.updateComment({
+    blogId: req.params.blogId,
+    commentId: req.params.commentId,
+    content: req.body.content,
+    user: req.user,
+  });
+  if (result.status === "not_found") {
+    return res.status(404).json({ error: "Comment not found" });
+  }
+  if (result.status === "forbidden") {
+    return res.status(403).json({ error: "You cannot edit this comment" });
+  }
+  return res.status(200).json({ comment: result.comment });
+}
+
+async function deleteComment(req, res) {
+  const result = await blogService.deleteComment({
+    blogId: req.params.blogId,
+    commentId: req.params.commentId,
+    user: req.user,
+  });
+  if (result.status === "not_found") {
+    return res.status(404).json({ error: "Comment not found" });
+  }
+  if (result.status === "forbidden") {
+    return res.status(403).json({ error: "You cannot delete this comment" });
+  }
+  return res.status(204).send();
 }
 
 async function addBookmark(req, res) {
@@ -145,6 +183,8 @@ module.exports = {
   updateBlog,
   deleteBlog,
   addComment,
+  updateComment,
+  deleteComment,
   addBookmark,
   removeBookmark,
   addLike,

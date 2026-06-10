@@ -10,6 +10,8 @@ const {
   createBlogValidator,
   updateBlogValidator,
   commentValidator,
+  commentMutationValidator,
+  updateCommentValidator,
 } = require("../validators/blogValidators");
 
 const router = Router();
@@ -29,6 +31,20 @@ router.post(
   createBlogValidator,
   validate,
   asyncHandler(blogController.createBlog)
+);
+router.patch(
+  "/:blogId/comments/:commentId",
+  requireAuth,
+  updateCommentValidator,
+  validate,
+  asyncHandler(blogController.updateComment)
+);
+router.delete(
+  "/:blogId/comments/:commentId",
+  requireAuth,
+  commentMutationValidator,
+  validate,
+  asyncHandler(blogController.deleteComment)
 );
 router.patch(
   "/:id",
