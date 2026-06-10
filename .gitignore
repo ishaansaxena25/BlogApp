@@ -1,6 +1,7 @@
 node_modules
 connect.js
 commit_history.csv
+docs
 
 # Environment files (keep examples tracked)
 .env
