@@ -88,8 +88,13 @@ export async function logout() {
 // BLOGS ENDPOINTS
 // -----------------------------------------------------
 
-export async function getBlogs() {
-  return await apiFetch('/blogs');
+export async function getBlogs(params = {}) {
+  const query = new URLSearchParams();
+  if (params.search) query.set('search', params.search);
+  if (params.tag) query.set('tag', params.tag);
+  if (params.status) query.set('status', params.status);
+  const suffix = query.toString() ? `?${query}` : '';
+  return await apiFetch(`/blogs${suffix}`);
 }
 
 export async function getBlog(id) {

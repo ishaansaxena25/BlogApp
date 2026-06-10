@@ -6,6 +6,8 @@ async function getAllBlogs(req, res) {
   const blogs = await blogService.listBlogs({
     status: req.query.status,
     user: req.user,
+    search: req.query.search?.trim(),
+    tag: req.query.tag?.trim(),
   });
   return res.status(200).json({ blogs });
 }

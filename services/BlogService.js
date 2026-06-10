@@ -31,7 +31,7 @@ class BlogService {
     );
   }
 
-  async listBlogs({ status, user } = {}) {
+  async listBlogs({ status, user, search, tag } = {}) {
     if (status === "draft") {
       if (!user) return [];
       return this.Blog.find({
@@ -40,6 +40,15 @@ class BlogService {
       })
         .populate("createdBy", "fullName profileImageURL")
         .sort({ createdAt: -1 });
+    }
+
+    if (search || tag) {
+      const query = { status: "PUBLISHED" };
+      if (search) query.$text = { $search: search };
+      if (tag) query.tags = new RegExp(`^${escapeRegExp(tag)}$`, "i");
+      return this.Blog.find(query)
+        .populate("createdBy", "fullName profileImageURL")
+        .sort(search ? { score: { $meta: "textScore" } } : { createdAt: -1 });
     }
 
     const cachedBlogs = await this.cache.get(BLOG_CACHE_KEY);
@@ -202,6 +211,10 @@ class BlogService {
     await this.cache.set(TRENDING_CACHE_KEY, blogs, 600);
     return blogs;
   }
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 BlogService.BLOG_CACHE_KEY = BLOG_CACHE_KEY;

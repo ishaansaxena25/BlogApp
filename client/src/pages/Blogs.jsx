@@ -3,27 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { getBlogs } from '../api';
 import BlogCard from '../components/BlogCard';
 import { Search, Sparkles, BookOpen, AlertCircle } from 'lucide-react';
+import useDebounce from '../hooks/useDebounce';
 
 export default function Blogs() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [tag, setTag] = useState('');
+  const debouncedSearch = useDebounce(searchQuery);
 
   // Fetch blogs query
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['blogs'],
-    queryFn: getBlogs,
+    queryKey: ['blogs', { search: debouncedSearch, tag }],
+    queryFn: () => getBlogs({ search: debouncedSearch, tag }),
   });
 
   const blogs = data?.blogs || [];
-
-  // Filtered blogs based on search query
-  const filteredBlogs = blogs.filter((blog) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      blog.title?.toLowerCase().includes(query) ||
-      blog.excerpt?.toLowerCase().includes(query) ||
-      blog.createdBy?.fullName?.toLowerCase().includes(query)
-    );
-  });
 
   // Skeletal loader for cards
   const renderSkeletons = () => (
@@ -77,6 +70,13 @@ export default function Blogs() {
             className="w-full pl-10 pr-4 py-3 bg-slate-900/30 border border-slate-900 text-slate-205 rounded-xl focus:outline-none focus:border-brand-505 focus:ring-1 focus:ring-brand-505 transition-all text-sm placeholder:text-slate-500"
           />
         </div>
+        <input
+          type="text"
+          placeholder="Filter by tag"
+          value={tag}
+          onChange={(event) => setTag(event.target.value.trimStart())}
+          className="w-full sm:w-56 px-4 py-3 bg-slate-900/30 border border-slate-900 text-slate-200 rounded-xl focus:outline-none focus:border-brand-500"
+        />
       </section>
 
       {/* Error state */}
@@ -102,9 +102,9 @@ export default function Blogs() {
       {/* Blog Cards Grid */}
       {!isLoading && !isError && (
         <>
-          {filteredBlogs.length > 0 ? (
+          {blogs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredBlogs.map((blog) => (
+              {blogs.map((blog) => (
                 <BlogCard key={blog._id} blog={blog} />
                ))}
             </div>
@@ -115,13 +115,16 @@ export default function Blogs() {
               </div>
               <h3 className="text-xl font-bold text-white">No articles found</h3>
               <p className="text-sm text-slate-400 max-w-sm">
-                {searchQuery
+                {searchQuery || tag
                   ? "We couldn't find any posts matching your search query. Try typing something else."
                   : 'Get started by creating the very first blog post on BlogBubble!'}
               </p>
-              {searchQuery && (
+              {(searchQuery || tag) && (
                 <button
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setTag('');
+                  }}
                   className="text-sm font-semibold text-brand-400 hover:text-brand-300 cursor-pointer"
                 >
                   Clear search query
