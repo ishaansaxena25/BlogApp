@@ -8,6 +8,8 @@ const multer = require("multer");
 const { optionalAuth } = require("./middlewares/auth");
 const { deleteStoredFile } = require("./services/storage");
 const cors = require("cors");
+const helmet = require("helmet");
+const { rateLimit, ipKeyGenerator } = require("express-rate-limit");
 const authRoutes = require("./routes/authRoutes");
 const blogRoutes = require("./routes/blogRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -22,6 +24,7 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || "http://localhost:5173",
   credentials: true,
 }));
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -46,7 +49,17 @@ app.get("/api", (req, res) => {
   });
 });
 
-app.use("/api/auth", authRoutes);
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 15,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  keyGenerator: (req) =>
+    req.get("x-rate-limit-key") || ipKeyGenerator(req.ip),
+  message: { error: "Too many authentication requests, please try again later" },
+});
+
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/uploads", uploadRoutes);

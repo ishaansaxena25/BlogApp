@@ -13,6 +13,7 @@ test("GET / describes the API", async () => {
 
   assert.equal(response.body.name, "BlogBubble API");
   assert.equal(response.body.status, "ok");
+  assert.equal(response.headers["x-content-type-options"], "nosniff");
 });
 
 test("unknown routes return a JSON 404 response", async () => {
@@ -53,4 +54,20 @@ test("logout blacklists the supplied bearer token", async () => {
     .expect(401);
 
   assert.deepEqual(response.body, { error: "Authentication required" });
+});
+
+test("auth routes are rate limited after 15 requests", async () => {
+  for (let requestNumber = 0; requestNumber < 15; requestNumber += 1) {
+    await request(app)
+      .post("/api/auth/login")
+      .set("x-rate-limit-key", "rate-limit-test")
+      .send({})
+      .expect(400);
+  }
+  const response = await request(app)
+    .post("/api/auth/login")
+    .set("x-rate-limit-key", "rate-limit-test")
+    .send({})
+    .expect(429);
+  assert.match(response.body.error, /too many/i);
 });
