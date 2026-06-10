@@ -146,6 +146,22 @@ export async function unbookmarkBlog(blogId) {
   });
 }
 
+export async function likeBlog(blogId) {
+  return apiFetch(`/blogs/${blogId}/like`, { method: 'PUT' });
+}
+
+export async function unlikeBlog(blogId) {
+  return apiFetch(`/blogs/${blogId}/like`, { method: 'DELETE' });
+}
+
+export async function incrementView(blogId) {
+  return apiFetch(`/blogs/${blogId}/view`, { method: 'POST' });
+}
+
+export async function getTrendingBlogs() {
+  return apiFetch('/blogs/trending');
+}
+
 // -----------------------------------------------------
 // USERS ENDPOINTS
 // -----------------------------------------------------

@@ -15,6 +15,7 @@ const {
 const router = Router();
 
 router.get("/", asyncHandler(blogController.getAllBlogs));
+router.get("/trending", asyncHandler(blogController.getTrending));
 router.get(
   "/:id",
   blogIdentifierValidator,
@@ -43,6 +44,26 @@ router.delete(
   blogIdValidator,
   validate,
   asyncHandler(blogController.deleteBlog)
+);
+router.put(
+  "/:id/like",
+  requireAuth,
+  blogIdValidator,
+  validate,
+  asyncHandler(blogController.addLike)
+);
+router.delete(
+  "/:id/like",
+  requireAuth,
+  blogIdValidator,
+  validate,
+  asyncHandler(blogController.removeLike)
+);
+router.post(
+  "/:id/view",
+  blogIdValidator,
+  validate,
+  asyncHandler(blogController.incrementViews)
 );
 router.post(
   "/:id/comments",

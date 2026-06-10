@@ -11,6 +11,7 @@ const {
 } = require("./blogMetadata");
 
 const BLOG_CACHE_KEY = "blogs:all";
+const TRENDING_CACHE_KEY = "blogs:trending";
 
 class BlogService {
   constructor({
@@ -78,8 +79,14 @@ class BlogService {
           (userId) => userId.toString() === user._id.toString()
         )
     );
+    const liked = Boolean(
+      user &&
+        blog.likes.some(
+          (userId) => userId.toString() === user._id.toString()
+        )
+    );
 
-    return { blog, comments, bookmarked };
+    return { blog, comments, bookmarked, liked };
   }
 
   async createBlog({ title, content, excerpt, tags, status, userId, file }) {
@@ -160,8 +167,44 @@ class BlogService {
       { new: true }
     );
   }
+
+  async setLike({ blogId, userId, liked }) {
+    const blog = await this.Blog.findByIdAndUpdate(
+      blogId,
+      liked
+        ? { $addToSet: { likes: userId } }
+        : { $pull: { likes: userId } },
+      { new: true }
+    );
+    if (!blog) return null;
+    await this.cache.delete(BLOG_CACHE_KEY, TRENDING_CACHE_KEY);
+    return { likesCount: blog.likes.length, liked };
+  }
+
+  async incrementViews(blogId) {
+    const blog = await this.Blog.findByIdAndUpdate(
+      blogId,
+      { $inc: { views: 1 } },
+      { new: true, projection: { views: 1 } }
+    );
+    if (!blog) return null;
+    await this.cache.delete(BLOG_CACHE_KEY, TRENDING_CACHE_KEY);
+    return blog.views;
+  }
+
+  async getTrending() {
+    const cached = await this.cache.get(TRENDING_CACHE_KEY);
+    if (cached) return cached;
+    const blogs = await this.Blog.find({ status: "PUBLISHED" })
+      .populate("createdBy", "fullName profileImageURL")
+      .sort({ views: -1, createdAt: -1 })
+      .limit(10);
+    await this.cache.set(TRENDING_CACHE_KEY, blogs, 600);
+    return blogs;
+  }
 }
 
 BlogService.BLOG_CACHE_KEY = BLOG_CACHE_KEY;
+BlogService.TRENDING_CACHE_KEY = TRENDING_CACHE_KEY;
 
 module.exports = BlogService;

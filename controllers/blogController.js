@@ -105,6 +105,37 @@ async function removeBookmark(req, res) {
   return res.status(200).json({ blog });
 }
 
+async function addLike(req, res) {
+  const result = await blogService.setLike({
+    blogId: req.params.id,
+    userId: req.user._id,
+    liked: true,
+  });
+  if (!result) return res.status(404).json({ error: "Blog not found" });
+  return res.status(200).json(result);
+}
+
+async function removeLike(req, res) {
+  const result = await blogService.setLike({
+    blogId: req.params.id,
+    userId: req.user._id,
+    liked: false,
+  });
+  if (!result) return res.status(404).json({ error: "Blog not found" });
+  return res.status(200).json(result);
+}
+
+async function incrementViews(req, res) {
+  const views = await blogService.incrementViews(req.params.id);
+  if (views === null) return res.status(404).json({ error: "Blog not found" });
+  return res.status(200).json({ views });
+}
+
+async function getTrending(req, res) {
+  const blogs = await blogService.getTrending();
+  return res.status(200).json({ blogs });
+}
+
 module.exports = {
   getAllBlogs,
   getBlog,
@@ -114,4 +145,8 @@ module.exports = {
   addComment,
   addBookmark,
   removeBookmark,
+  addLike,
+  removeLike,
+  incrementViews,
+  getTrending,
 };

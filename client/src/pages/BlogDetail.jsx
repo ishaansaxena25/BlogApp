@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBlog, deleteBlog, bookmarkBlog, unbookmarkBlog, getProfile } from '../api';
+import { getBlog, deleteBlog, bookmarkBlog, unbookmarkBlog, getProfile, likeBlog, unlikeBlog, incrementView } from '../api';
 import CommentSection from '../components/CommentSection';
 import EditorRenderer from '../components/EditorRenderer';
-import { Calendar, User, Bookmark, Edit2, Trash2, ArrowLeft, Loader2, BookmarkCheck } from 'lucide-react';
+import { Calendar, User, Bookmark, Edit2, Trash2, ArrowLeft, Loader2, BookmarkCheck, Heart, Eye } from 'lucide-react';
 
 export default function BlogDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const viewedBlogRef = useRef(null);
 
   // Fetch single blog details
   const { data, isLoading, isError, error } = useQuery({
@@ -30,6 +31,7 @@ export default function BlogDetail() {
   const blog = data?.blog;
   const comments = data?.comments || [];
   const isBookmarked = data?.bookmarked;
+  const isLiked = data?.liked;
 
   // Check if owner/admin
   const isOwner = currentUser && blog && (currentUser.id === blog.createdBy?._id || currentUser.role === 'ADMIN');
@@ -42,6 +44,22 @@ export default function BlogDetail() {
       queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
     },
   });
+
+  const likeMutation = useMutation({
+    mutationFn: () => (isLiked ? unlikeBlog(blog._id) : likeBlog(blog._id)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog', id] });
+      queryClient.invalidateQueries({ queryKey: ['blogs'] });
+    },
+  });
+
+  useEffect(() => {
+    if (!blog?._id || viewedBlogRef.current === blog._id) return;
+    viewedBlogRef.current = blog._id;
+    incrementView(blog._id)
+      .then(() => queryClient.invalidateQueries({ queryKey: ['blog', id] }))
+      .catch(() => {});
+  }, [blog?._id, id, queryClient]);
 
   // Delete Blog Mutation
   const deleteMutation = useMutation({
@@ -138,6 +156,7 @@ export default function BlogDetail() {
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
           {(blog.tags || []).map((tag) => <span key={tag}>#{tag}</span>)}
           {blog.readingTime && <span>{blog.readingTime} min read</span>}
+          <span className="inline-flex items-center gap-1"><Eye className="w-4 h-4" />{blog.views || 0}</span>
         </div>
 
         {/* Metadata and Controls */}
@@ -160,6 +179,18 @@ export default function BlogDetail() {
 
           {/* Action buttons (Bookmark, Edit, Delete) */}
           <div className="flex items-center space-x-3">
+            {currentUser && (
+              <button
+                onClick={() => likeMutation.mutate()}
+                disabled={likeMutation.isPending}
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm ${
+                  isLiked ? 'border-rose-500/40 text-rose-400' : 'border-slate-800 text-slate-400'
+                }`}
+              >
+                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                <span>{blog.likes?.length || 0}</span>
+              </button>
+            )}
             {currentUser && (
               <button
                 onClick={() => bookmarkMutation.mutate()}

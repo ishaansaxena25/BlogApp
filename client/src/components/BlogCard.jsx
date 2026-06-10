@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, User, BookmarkX } from 'lucide-react';
+import { Calendar, User, BookmarkX, Eye, Heart } from 'lucide-react';
 
 export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBookmark = null }) {
   const { _id, slug, title, content, excerpt, tags = [], readingTime, createdBy, coverImageURL, createdAt } = blog;
@@ -88,6 +88,8 @@ export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBoo
               <span key={tag} className="text-[11px] text-brand-300">#{tag}</span>
             ))}
             {readingTime && <span className="text-[11px] text-slate-500">{readingTime} min read</span>}
+            <span className="inline-flex items-center gap-1 text-[11px] text-slate-500"><Eye className="w-3 h-3" />{blog.views || 0}</span>
+            <span className="inline-flex items-center gap-1 text-[11px] text-slate-500"><Heart className="w-3 h-3" />{blog.likes?.length || 0}</span>
           </div>
         </div>
 
