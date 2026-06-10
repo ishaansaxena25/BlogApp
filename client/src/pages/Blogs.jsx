@@ -4,6 +4,7 @@ import { getBlogs } from '../api';
 import BlogCard from '../components/BlogCard';
 import { Search, Sparkles, BookOpen, AlertCircle } from 'lucide-react';
 import useDebounce from '../hooks/useDebounce';
+import { BlogCardSkeleton } from '../components/skeletons';
 
 export default function Blogs() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,24 +19,9 @@ export default function Blogs() {
 
   const blogs = data?.blogs || [];
 
-  // Skeletal loader for cards
   const renderSkeletons = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="glass-card animate-pulse overflow-hidden h-[400px] flex flex-col justify-between">
-          <div className="bg-slate-900 aspect-video w-full" />
-          <div className="p-5 flex-1 space-y-4">
-            <div className="h-4 bg-slate-900 rounded w-1/4" />
-            <div className="h-6 bg-slate-900 rounded w-3/4" />
-            <div className="h-4 bg-slate-900 rounded w-full" />
-            <div className="h-4 bg-slate-900 rounded w-5/6" />
-          </div>
-          <div className="p-5 border-t border-slate-900 flex justify-between items-center">
-            <div className="h-6 bg-slate-900 rounded-full w-24" />
-            <div className="h-4 bg-slate-900 rounded w-12" />
-          </div>
-        </div>
-      ))}
+      {Array.from({ length: 6 }, (_, index) => <BlogCardSkeleton key={index} />)}
     </div>
   );
 

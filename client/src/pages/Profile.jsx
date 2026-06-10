@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { changePassword, getProfile, updateProfile } from '../api';
 import BlogCard from '../components/BlogCard';
 import { BookOpen, ExternalLink, Loader2, Upload } from 'lucide-react';
+import { ProfileSkeleton } from '../components/skeletons';
 
 const optionalUrl = z.union([z.literal(''), z.url('Enter a complete URL including https://')]);
 const profileSchema = z.object({
@@ -97,7 +98,7 @@ export default function Profile() {
   });
 
   if (isLoading) {
-    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+    return <ProfileSkeleton />;
   }
   if (isError || !user) {
     return <div className="py-16 text-center text-red-300">Profile could not be loaded.</div>;

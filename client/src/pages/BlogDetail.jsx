@@ -6,6 +6,7 @@ import CommentSection from '../components/CommentSection';
 import EditorRenderer from '../components/EditorRenderer';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { toast } from 'sonner';
+import { BlogDetailSkeleton } from '../components/skeletons';
 import { Calendar, User, Bookmark, Edit2, Trash2, ArrowLeft, Loader2, BookmarkCheck, Heart, Eye } from 'lucide-react';
 
 export default function BlogDetail() {
@@ -108,12 +109,7 @@ export default function BlogDetail() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-350">
-        <Loader2 className="w-10 h-10 animate-spin text-brand-500 mb-4" />
-        <p className="text-slate-400 font-medium">Fetching article...</p>
-      </div>
-    );
+    return <BlogDetailSkeleton />;
   }
 
   if (isError || !blog) {

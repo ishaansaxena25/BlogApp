@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User, BookmarkX, Eye, Heart } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBookmark = null }) {
+  const reduceMotion = useReducedMotion();
   const { _id, slug, title, content, excerpt, tags = [], readingTime, createdBy, coverImageURL, createdAt } = blog;
   const blogUrl = `/blogs/${slug || _id}`;
 
@@ -46,7 +48,11 @@ export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBoo
   };
 
   return (
-    <article className="glass-card hover:border-slate-700/80 hover:shadow-brand-500/5 hover:-translate-y-1 group relative flex flex-col h-full overflow-hidden">
+    <motion.article
+      whileHover={reduceMotion ? undefined : { y: -4, scale: 1.01 }}
+      transition={{ duration: 0.25 }}
+      className="glass-card hover:border-slate-700/80 hover:shadow-brand-500/5 group relative flex flex-col h-full overflow-hidden"
+    >
       {/* Cover Image */}
       <Link to={blogUrl} className="block overflow-hidden aspect-video relative">
         <img
@@ -122,6 +128,6 @@ export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBoo
           )}
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }

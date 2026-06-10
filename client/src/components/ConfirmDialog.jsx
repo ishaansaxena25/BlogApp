@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function ConfirmDialog({ open, title, description, onConfirm, onCancel, pending = false }) {
   const cancelRef = useRef(null);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (open) cancelRef.current?.focus();
@@ -10,7 +12,15 @@ export default function ConfirmDialog({ open, title, description, onConfirm, onC
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/80 p-4" role="presentation">
-      <div role="dialog" aria-modal="true" aria-labelledby="confirm-title" className="glass-card w-full max-w-md p-6">
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2 }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-title"
+        className="glass-card w-full max-w-md p-6"
+      >
         <h2 id="confirm-title" className="text-xl font-bold">{title}</h2>
         <p className="mt-2 text-sm text-slate-400">{description}</p>
         <div className="mt-6 flex justify-end gap-3">
@@ -19,7 +29,7 @@ export default function ConfirmDialog({ open, title, description, onConfirm, onC
             {pending ? 'Deleting...' : 'Delete'}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
