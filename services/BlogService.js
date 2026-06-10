@@ -1,10 +1,7 @@
 const Blog = require("../models/blog");
 const Comment = require("../models/comment");
 const CacheService = require("./CacheService");
-const {
-  deletePublicFile,
-  deleteUploadedFile,
-} = require("./fileStorage");
+const { uploadFile, deleteStoredFile } = require("./storage");
 
 const BLOG_CACHE_KEY = "blogs:all";
 
@@ -58,11 +55,12 @@ class BlogService {
   }
 
   async createBlog({ title, body, userId, file }) {
+    const coverImageURL = await uploadFile(file, "uploads");
     const blog = await this.Blog.create({
       title,
       body,
       createdBy: userId,
-      ...(file && { coverImageURL: `/uploads/${file.filename}` }),
+      ...(coverImageURL && { coverImageURL }),
     });
     await this.cache.delete(BLOG_CACHE_KEY);
     return blog;
@@ -70,22 +68,16 @@ class BlogService {
 
   async updateBlog({ id, title, body, user, file }) {
     const blog = await this.Blog.findById(id);
-    if (!blog) {
-      await deleteUploadedFile(file);
-      return { status: "not_found" };
-    }
-    if (!this.canManage(user, blog)) {
-      await deleteUploadedFile(file);
-      return { status: "forbidden" };
-    }
+    if (!blog) return { status: "not_found" };
+    if (!this.canManage(user, blog)) return { status: "forbidden" };
 
     const oldCoverImageUrl = blog.coverImageURL;
     if (title !== undefined) blog.title = title;
     if (body !== undefined) blog.body = body;
-    if (file) blog.coverImageURL = `/uploads/${file.filename}`;
+    if (file) blog.coverImageURL = await uploadFile(file, "uploads");
     await blog.save();
 
-    if (file) await deletePublicFile(oldCoverImageUrl);
+    if (file) await deleteStoredFile(oldCoverImageUrl);
     await this.cache.delete(BLOG_CACHE_KEY);
     return { status: "updated", blog };
   }
@@ -99,7 +91,7 @@ class BlogService {
       this.Comment.deleteMany({ BlogId: blog._id }),
       this.Blog.findByIdAndDelete(blog._id),
     ]);
-    await deletePublicFile(blog.coverImageURL);
+    await deleteStoredFile(blog.coverImageURL);
     await this.cache.delete(BLOG_CACHE_KEY);
     return { status: "deleted" };
   }

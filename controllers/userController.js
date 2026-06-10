@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const Blog = require("../models/blog");
 const { createTokenforUser } = require("../services/JWTauth");
-const { deletePublicFile } = require("../services/fileStorage");
+const { uploadFile, deleteStoredFile } = require("../services/storage");
 
 function publicUser(user) {
   return {
@@ -34,12 +34,12 @@ async function updateProfile(req, res) {
   const oldProfileImageUrl = user.profileImageURL;
   if (req.body.fullName !== undefined) user.fullName = req.body.fullName;
   if (req.body.email !== undefined) user.email = req.body.email;
-  if (req.file) user.profileImageURL = `/profile/${req.file.filename}`;
+  if (req.file) user.profileImageURL = await uploadFile(req.file, "profile");
   await user.save();
   req.filePersisted = Boolean(req.file);
 
   if (req.file) {
-    await deletePublicFile(oldProfileImageUrl);
+    await deleteStoredFile(oldProfileImageUrl);
   }
 
   const token = createTokenforUser(user);

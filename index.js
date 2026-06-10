@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const { optionalAuth } = require("./middlewares/auth");
-const { deleteUploadedFile } = require("./services/fileStorage");
+const { deleteStoredFile } = require("./services/storage");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const blogRoutes = require("./routes/blogRoutes");
@@ -55,7 +55,7 @@ app.use((req, res) => {
 
 app.use(async (err, req, res, next) => {
   if (!req.filePersisted) {
-    await deleteUploadedFile(req.file).catch((cleanupError) => {
+    await deleteStoredFile(req.file?.location).catch((cleanupError) => {
       console.error("Failed to clean up upload:", cleanupError);
     });
   }

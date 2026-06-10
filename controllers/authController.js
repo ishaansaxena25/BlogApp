@@ -1,7 +1,7 @@
 const JWT = require("jsonwebtoken");
 const User = require("../models/user");
 const { blacklistToken } = require("../services/tokenBlacklist");
-const { deleteUploadedFile } = require("../services/fileStorage");
+const { uploadFile, deleteStoredFile } = require("../services/storage");
 
 function publicUser(user) {
   return {
@@ -16,15 +16,15 @@ function publicUser(user) {
 async function register(req, res) {
   const existingUser = await User.exists({ email: req.body.email });
   if (existingUser) {
-    await deleteUploadedFile(req.file);
     return res.status(409).json({ error: "A user with this email already exists" });
   }
 
+  const profileImageURL = await uploadFile(req.file, "profile");
   const user = await User.create({
     fullName: req.body.fullName,
     email: req.body.email,
     password: req.body.password,
-    ...(req.file && { profileImageURL: `/profile/${req.file.filename}` }),
+    ...(profileImageURL && { profileImageURL }),
   });
   req.filePersisted = Boolean(req.file);
   const token = await User.matchPass(req.body.email, req.body.password);
