@@ -26,11 +26,13 @@ export default function CreateBlog() {
     },
   });
 
-  const handleSubmit = ({ title, content, coverImage }) => {
+  const handleSubmit = ({ title, content, excerpt, tags, coverImage }) => {
     // Construct FormData as req is multipart/form-data
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', JSON.stringify(content));
+    if (excerpt) formData.append('excerpt', excerpt);
+    formData.append('tags', JSON.stringify(tags));
     if (coverImage) {
       formData.append('coverImage', coverImage);
     }

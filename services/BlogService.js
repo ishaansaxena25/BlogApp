@@ -3,6 +3,12 @@ const Comment = require("../models/comment");
 const CacheService = require("./CacheService");
 const { uploadFile, deleteStoredFile } = require("./storage");
 const { sanitizeEditorContent } = require("./editorContent");
+const { isValidObjectId } = require("mongoose");
+const {
+  calculateReadingTime,
+  createExcerpt,
+  createUniqueSlug,
+} = require("./blogMetadata");
 
 const BLOG_CACHE_KEY = "blogs:all";
 
@@ -35,8 +41,11 @@ class BlogService {
     return blogs;
   }
 
-  async getBlog(id, user) {
-    const blog = await this.Blog.findById(id).populate(
+  async getBlog(identifier, user) {
+    const query = isValidObjectId(identifier)
+      ? { _id: identifier }
+      : { slug: identifier };
+    const blog = await this.Blog.findOne(query).populate(
       "createdBy",
       "fullName profileImageURL"
     );
@@ -55,11 +64,16 @@ class BlogService {
     return { blog, comments, bookmarked };
   }
 
-  async createBlog({ title, content, userId, file }) {
+  async createBlog({ title, content, excerpt, tags, userId, file }) {
     const coverImageURL = await uploadFile(file, "uploads");
+    const sanitizedContent = sanitizeEditorContent(content);
     const blog = await this.Blog.create({
       title,
-      content: sanitizeEditorContent(content),
+      slug: await createUniqueSlug(title, this.Blog),
+      content: sanitizedContent,
+      excerpt: excerpt || createExcerpt(sanitizedContent),
+      tags: tags || [],
+      readingTime: calculateReadingTime(sanitizedContent),
       createdBy: userId,
       ...(coverImageURL && { coverImageURL }),
     });
@@ -67,14 +81,23 @@ class BlogService {
     return blog;
   }
 
-  async updateBlog({ id, title, content, user, file }) {
+  async updateBlog({ id, title, content, excerpt, tags, user, file }) {
     const blog = await this.Blog.findById(id);
     if (!blog) return { status: "not_found" };
     if (!this.canManage(user, blog)) return { status: "forbidden" };
 
     const oldCoverImageUrl = blog.coverImageURL;
-    if (title !== undefined) blog.title = title;
-    if (content !== undefined) blog.content = sanitizeEditorContent(content);
+    if (title !== undefined && title !== blog.title) {
+      blog.title = title;
+      blog.slug = await createUniqueSlug(title, this.Blog, blog._id);
+    }
+    if (content !== undefined) {
+      blog.content = sanitizeEditorContent(content);
+      blog.readingTime = calculateReadingTime(blog.content);
+      if (excerpt === undefined) blog.excerpt = createExcerpt(blog.content);
+    }
+    if (excerpt !== undefined) blog.excerpt = excerpt;
+    if (tags !== undefined) blog.tags = tags;
     if (file) blog.coverImageURL = await uploadFile(file, "uploads");
     await blog.save();
 

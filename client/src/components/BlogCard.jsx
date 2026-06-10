@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Calendar, User, BookmarkX } from 'lucide-react';
 
 export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBookmark = null }) {
-  const { _id, title, content, excerpt, createdBy, coverImageURL, createdAt } = blog;
+  const { _id, slug, title, content, excerpt, tags = [], readingTime, createdBy, coverImageURL, createdAt } = blog;
+  const blogUrl = `/blogs/${slug || _id}`;
 
   // Resolve cover image path
   const getCoverImageUrl = (path) => {
@@ -47,7 +48,7 @@ export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBoo
   return (
     <article className="glass-card hover:border-slate-700/80 hover:shadow-brand-500/5 hover:-translate-y-1 group relative flex flex-col h-full overflow-hidden">
       {/* Cover Image */}
-      <Link to={`/blogs/${_id}`} className="block overflow-hidden aspect-video relative">
+      <Link to={blogUrl} className="block overflow-hidden aspect-video relative">
         <img
           src={getCoverImageUrl(coverImageURL)}
           alt={title}
@@ -70,13 +71,19 @@ export default function BlogCard({ blog, showRemoveBookmark = false, onRemoveBoo
 
           {/* Title */}
           <h3 className="text-lg font-bold text-white mb-2 leading-snug group-hover:text-brand-300 transition-colors line-clamp-2">
-            <Link to={`/blogs/${_id}`}>{title}</Link>
+            <Link to={blogUrl}>{title}</Link>
           </h3>
 
           {/* Excerpt */}
           <p className="text-sm text-slate-400 line-clamp-3 mb-4 leading-relaxed">
             {getExcerpt()}
           </p>
+          <div className="mb-4 flex flex-wrap gap-2">
+            {tags.slice(0, 3).map((tag) => (
+              <span key={tag} className="text-[11px] text-brand-300">#{tag}</span>
+            ))}
+            {readingTime && <span className="text-[11px] text-slate-500">{readingTime} min read</span>}
+          </div>
         </div>
 
         {/* Footer info (Author & actions) */}

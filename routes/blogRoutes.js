@@ -6,6 +6,7 @@ const { blogImageUpload } = require("../middlewares/upload");
 const validate = require("../middlewares/validate");
 const {
   blogIdValidator,
+  blogIdentifierValidator,
   createBlogValidator,
   updateBlogValidator,
   commentValidator,
@@ -16,7 +17,7 @@ const router = Router();
 router.get("/", asyncHandler(blogController.getAllBlogs));
 router.get(
   "/:id",
-  blogIdValidator,
+  blogIdentifierValidator,
   validate,
   asyncHandler(blogController.getBlog)
 );

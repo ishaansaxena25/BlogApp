@@ -135,6 +135,10 @@ export default function BlogDetail() {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight font-sans">
           {blog.title}
         </h1>
+        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+          {(blog.tags || []).map((tag) => <span key={tag}>#{tag}</span>)}
+          {blog.readingTime && <span>{blog.readingTime} min read</span>}
+        </div>
 
         {/* Metadata and Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-y border-slate-900">

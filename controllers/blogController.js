@@ -19,6 +19,8 @@ async function createBlog(req, res) {
   const blog = await blogService.createBlog({
     title: req.body.title,
     content: req.body.content,
+    excerpt: req.body.excerpt,
+    tags: req.body.tags,
     userId: req.user._id,
     file: req.file,
   });
@@ -31,6 +33,8 @@ async function updateBlog(req, res) {
     id: req.params.id,
     title: req.body.title,
     content: req.body.content,
+    excerpt: req.body.excerpt,
+    tags: req.body.tags,
     user: req.user,
     file: req.file,
   });

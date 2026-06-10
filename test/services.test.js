@@ -45,6 +45,9 @@ test("BlogService reuses and invalidates the list cache", async () => {
     },
   };
   const BlogModel = {
+    async exists() {
+      return false;
+    },
     find() {
       return query;
     },

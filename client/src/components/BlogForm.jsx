@@ -7,6 +7,8 @@ const emptyContent = { blocks: [{ type: 'paragraph', data: { text: '' } }] };
 export default function BlogForm({ initialData = null, onSubmit, isPending, serverErrors = null }) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [content, setContent] = useState(initialData?.content || emptyContent);
+  const [excerpt, setExcerpt] = useState(initialData?.excerpt || '');
+  const [tags, setTags] = useState((initialData?.tags || []).join(', '));
   const [coverImage, setCoverImage] = useState(null);
   const server = import.meta.env.VITE_API_URL || '';
   const initialPreview = initialData?.coverImageURL
@@ -58,7 +60,13 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ title, content, coverImage });
+    onSubmit({
+      title,
+      content,
+      excerpt,
+      tags: tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+      coverImage,
+    });
   };
 
   const titleError = getFieldError('title');
@@ -138,6 +146,35 @@ export default function BlogForm({ initialData = null, onSubmit, isPending, serv
             />
           </label>
         )}
+      </div>
+
+      <div>
+        <label htmlFor="excerpt" className="block text-sm font-semibold text-slate-200 mb-2">
+          Excerpt
+        </label>
+        <textarea
+          id="excerpt"
+          value={excerpt}
+          maxLength={300}
+          onChange={(event) => setExcerpt(event.target.value)}
+          placeholder="Optional summary generated from the first paragraph when blank"
+          disabled={isPending}
+          className="glass-input resize-y"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="tags" className="block text-sm font-semibold text-slate-200 mb-2">
+          Tags
+        </label>
+        <input
+          id="tags"
+          value={tags}
+          onChange={(event) => setTags(event.target.value)}
+          placeholder="react, mongodb, writing"
+          disabled={isPending}
+          className="glass-input"
+        />
       </div>
 
       {/* Editor.js Content */}

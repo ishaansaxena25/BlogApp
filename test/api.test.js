@@ -27,8 +27,8 @@ test("protected routes reject unauthenticated requests", async () => {
   assert.deepEqual(response.body, { error: "Authentication required" });
 });
 
-test("blog ID validation runs before database access", async () => {
-  const response = await request(app).get("/api/blogs/not-an-id").expect(400);
+test("blog identifier validation runs before database access", async () => {
+  const response = await request(app).get("/api/blogs/not_an_id").expect(400);
 
   assert.equal(response.body.errors[0].path, "id");
 });
