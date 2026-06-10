@@ -10,6 +10,11 @@ function publicUser(user) {
     email: user.email,
     profileImageURL: user.profileImageURL,
     role: user.role,
+    bio: user.bio,
+    github: user.github,
+    linkedin: user.linkedin,
+    twitter: user.twitter,
+    website: user.website,
   };
 }
 

@@ -27,6 +27,11 @@ const userSchema = new Schema({
     enum: ["USER", "ADMIN"],
     default: "USER",
   },
+  bio: { type: String, maxlength: 500, default: "" },
+  github: { type: String, default: "" },
+  linkedin: { type: String, default: "" },
+  twitter: { type: String, default: "" },
+  website: { type: String, default: "" },
 });
 
 userSchema.pre("save", function (next) {

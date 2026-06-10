@@ -16,6 +16,18 @@ const loginValidator = [
 const updateProfileValidator = [
   body("fullName").optional().trim().notEmpty(),
   body("email").optional().trim().isEmail().normalizeEmail(),
+  body("bio")
+    .optional()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage("Bio cannot exceed 500 characters"),
+  ...["github", "linkedin", "twitter", "website"].map((field) =>
+    body(field)
+      .optional({ values: "falsy" })
+      .trim()
+      .isURL({ protocols: ["http", "https"], require_protocol: true })
+      .withMessage(`${field} must be a valid URL`)
+  ),
 ];
 
 const changePasswordValidator = [

@@ -10,6 +10,11 @@ function publicUser(user) {
     email: user.email,
     profileImageURL: user.profileImageURL,
     role: user.role,
+    bio: user.bio,
+    github: user.github,
+    linkedin: user.linkedin,
+    twitter: user.twitter,
+    website: user.website,
   };
 }
 
@@ -34,6 +39,9 @@ async function updateProfile(req, res) {
   const oldProfileImageUrl = user.profileImageURL;
   if (req.body.fullName !== undefined) user.fullName = req.body.fullName;
   if (req.body.email !== undefined) user.email = req.body.email;
+  for (const field of ["bio", "github", "linkedin", "twitter", "website"]) {
+    if (req.body[field] !== undefined) user[field] = req.body[field];
+  }
   if (req.file) user.profileImageURL = await uploadFile(req.file, "profile");
   await user.save();
   req.filePersisted = Boolean(req.file);
