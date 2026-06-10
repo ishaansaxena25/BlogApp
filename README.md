@@ -1,6 +1,6 @@
 # BlogBubble
 
-A full-stack blog platform with JWT-based authentication, content management, Redis caching, local image uploads, and a modern, responsive React frontend.
+A full-stack publishing platform with Editor.js content, drafts, discovery, engagement, Redis caching, Cloudflare R2-compatible image storage, and a responsive React frontend.
 
 ---
 
@@ -18,9 +18,9 @@ This repository is organized as a monorepo containing both the backend service a
 - **Backend:** Node.js, Express.js, JavaScript
 - **Frontend:** React, Vite, React Query, React Router v6, Tailwind CSS v3
 - **Database:** MongoDB with Mongoose
-- **Auth:** JWT via HTTP-only cookie or Bearer token
+- **Auth:** JWT via HTTP-only cookie or Bearer token, bcrypt passwords
 - **Caching:** Redis with graceful fallback when unavailable
-- **File Uploads:** Multer (covers blog cover photos and profile images)
+- **File Uploads:** Multer memory uploads routed to local development storage or Cloudflare R2
 - **Validation:** express-validator
 
 ---
@@ -91,6 +91,12 @@ All endpoints return JSON. Protected routes accept an HTTP-only `token` cookie o
 | POST | `/api/blogs/:id/comments` | Yes | Add a comment |
 | PUT | `/api/blogs/:id/bookmark` | Yes | Bookmark a blog |
 | DELETE | `/api/blogs/:id/bookmark` | Yes | Remove a bookmark |
+| PUT | `/api/blogs/:id/like` | Yes | Like a blog |
+| DELETE | `/api/blogs/:id/like` | Yes | Remove a like |
+| POST | `/api/blogs/:id/view` | No | Increment views |
+| GET | `/api/blogs/trending` | No | List top blogs by views |
+| PATCH | `/api/blogs/:blogId/comments/:commentId` | Owner | Edit a comment |
+| DELETE | `/api/blogs/:blogId/comments/:commentId` | Owner/Admin | Delete a comment |
 
 ### Users
 
@@ -101,11 +107,16 @@ All endpoints return JSON. Protected routes accept an HTTP-only `token` cookie o
 | PATCH | `/api/users/me/password` | Yes | Change the current password |
 | GET | `/api/users/me/bookmarks` | Yes | List bookmarked blogs |
 
-### File Uploads
+### Content and Uploads
 
-- Send blog cover images as `coverImage` in `multipart/form-data`.
+- Send Editor.js JSON as a stringified `content` field in `multipart/form-data`.
+- Send blog cover images as `coverImage`.
 - Send profile images as `profileImage` in `multipart/form-data`.
-- Replaced and deleted images are automatically removed from storage (Max file size: 5 MB; Accepted: JPEG, PNG, WebP).
+- Upload Editor.js images to `POST /api/uploads/editor-image` using the `image` field.
+- Replaced and deleted images are automatically removed from storage.
+
+Blog listing supports `?search=term`, `?tag=react`, and authenticated `?status=draft`.
+Blog detail accepts either a MongoDB ID or slug.
 
 ---
 
@@ -114,8 +125,8 @@ All endpoints return JSON. Protected routes accept an HTTP-only `token` cookie o
 ```text
 React Client (Vite) [inside /client] -> JSON REST API -> Controllers -> Mongoose -> MongoDB
                                                           |
-                                                          +-> Redis blog cache
-                                                          +-> Local image storage
+                                                          +-> Redis cache
+                                                          +-> Local/R2 storage
 ```
 
 Routes handle HTTP concerns, controllers coordinate application behavior, and services contain reusable authentication and file-management logic.

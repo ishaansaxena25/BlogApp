@@ -906,3 +906,27 @@ docker system df
 <p align="center">
   <strong>BlogBubble</strong> — Built with Express · React · MongoDB · Redis · Docker
 </p>
+
+---
+
+## Cloudflare R2 Storage
+
+Production deployments use the S3-compatible R2 storage service. Create the
+`profiles`, `covers`/`uploads`, and `editor` prefixes automatically by uploading
+through the application, then configure:
+
+```ini
+R2_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID=...
+R2_SECRET_ACCESS_KEY=...
+R2_BUCKET=blogbubble-storage
+R2_PUBLIC_URL=https://images.example.com
+MAX_FILE_SIZE=5242880
+```
+
+Development falls back to `public/` storage. Production fails fast when R2 is
+partially or entirely missing unless `STORAGE_DRIVER=local` is explicitly set
+and the public directory is mounted to persistent storage.
+
+Redis uses `blogs:all` for the published feed and `blogs:trending` for the top
+ten posts by views. Mutating blogs, likes, or views invalidates affected keys.
