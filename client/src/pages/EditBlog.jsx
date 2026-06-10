@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getBlog, updateBlog, getProfile } from '../api';
 import BlogForm from '../components/BlogForm';
 import { Edit3, ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function EditBlog() {
   const { id } = useParams();
@@ -52,9 +53,11 @@ export default function EditBlog() {
       if (formData.get('status') === 'PUBLISHED') {
         navigate(`/blogs/${data.blog.slug || id}`);
       }
+      if (formData.get('autoSave') !== 'true') toast.success('Blog saved');
     },
     onError: (err) => {
       setError(err);
+      toast.error(err.message);
     },
   });
 

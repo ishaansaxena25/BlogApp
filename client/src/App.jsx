@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Bookmarks from './pages/Bookmarks';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -64,7 +65,7 @@ function App() {
             />
 
             {/* Fallback Catch-all Route */}
-            <Route path="*" element={<Home />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </div>

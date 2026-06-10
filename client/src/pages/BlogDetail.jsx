@@ -1,9 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getBlog, deleteBlog, bookmarkBlog, unbookmarkBlog, getProfile, likeBlog, unlikeBlog, incrementView } from '../api';
 import CommentSection from '../components/CommentSection';
 import EditorRenderer from '../components/EditorRenderer';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { toast } from 'sonner';
 import { Calendar, User, Bookmark, Edit2, Trash2, ArrowLeft, Loader2, BookmarkCheck, Heart, Eye } from 'lucide-react';
 
 export default function BlogDetail() {
@@ -11,6 +13,7 @@ export default function BlogDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const viewedBlogRef = useRef(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Fetch single blog details
   const { data, isLoading, isError, error } = useQuery({
@@ -67,13 +70,13 @@ export default function BlogDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
       navigate('/');
+      toast.success('Blog deleted');
     },
+    onError: (mutationError) => toast.error(mutationError.message),
   });
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) {
-      deleteMutation.mutate();
-    }
+    setConfirmDelete(true);
   };
 
   const getCoverImageUrl = (path) => {
@@ -245,6 +248,14 @@ export default function BlogDetail() {
 
       {/* Comment Section */}
       <CommentSection blogId={id} comments={comments} />
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete this blog?"
+        description="This removes the article and its comments permanently."
+        pending={deleteMutation.isPending}
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={() => deleteMutation.mutate()}
+      />
     </main>
   );
 }

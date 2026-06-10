@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createBlog } from '../api';
 import BlogForm from '../components/BlogForm';
 import { Feather, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function CreateBlog() {
   const navigate = useNavigate();
@@ -23,10 +24,12 @@ export default function CreateBlog() {
           ? `/blogs/${data.blog._id}/edit`
           : `/blogs/${data.blog.slug || data.blog._id}`
       );
+      toast.success(data.blog.status === 'DRAFT' ? 'Draft saved' : 'Blog published');
     },
     onError: (err) => {
       // Capture detailed express-validator output or general backend error
       setError(err);
+      toast.error(err.message);
     },
   });
 
